@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { AppShell, PageHeader, StatusBadge } from "@/components/app-shell";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,11 +10,16 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   ArrowRight, MapPin, Calendar, Users, MessageSquare, Share2, Download,
   Upload, CheckCircle2, Clock, XCircle, FileText, Box, Image as ImageIcon, FileBarChart,
-  Folder, Send, Sparkles
+  Folder, Send, Sparkles, Link2, Maximize2, Trash2, Pencil
 } from "lucide-react";
 import { projects, statusMeta, files, fileCategoryLabel, approvals, activity, fieldImages, issues } from "@/lib/mock-data";
+
+const DEFAULT_3D_URL = "https://3d.magicplan.app/#embed/?key=MDI4ZTk1Yzk3ZDVmYTYyMTkwNGJhMTJmNzg2YjM5YWIxNDVlN2FkNTcyMzU0ZTdkYjI0YjYzZjNiNThiOWRkMIG9JC7tWsAig6Nons7D%2FwHBaINGyYSbge4IITM%2BKWqPDmEQDLoeKEL6qllGbr7NOSd%2BRxCa5cRbzS%2FqL4X3IGOH05TzlsAtYXmtLHeim64g";
 
 export const Route = createFileRoute("/projects/$id")({
   head: ({ params }) => {
@@ -83,6 +89,7 @@ function ProjectDetail() {
           <TabsTrigger value="versions">الإصدارات</TabsTrigger>
           <TabsTrigger value="approvals">الموافقات</TabsTrigger>
           <TabsTrigger value="ai">تحليل AI</TabsTrigger>
+          <TabsTrigger value="3d">عرض ثلاثي الأبعاد</TabsTrigger>
           <TabsTrigger value="issues">القضايا</TabsTrigger>
           <TabsTrigger value="team">الفريق</TabsTrigger>
           <TabsTrigger value="activity">النشاط</TabsTrigger>
@@ -220,6 +227,10 @@ function ProjectDetail() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="3d" className="mt-4">
+          <ThreeDViewer projectId={p.id} />
+        </TabsContent>
+
         <TabsContent value="issues" className="mt-4">
           <Card className="p-6">
             <div className="mb-4 flex items-center justify-between"><h3 className="font-semibold">القضايا والملاحظات</h3><Button>قضية جديدة</Button></div>
@@ -315,5 +326,102 @@ function ApprovalStepper({ expanded = false }: { expanded?: boolean }) {
         );
       })}
     </ol>
+  );
+}
+
+function ThreeDViewer({ projectId }: { projectId: string }) {
+  const storageKey = `project-3d-url:${projectId}`;
+  const [url, setUrl] = useState<string>("");
+  const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState("");
+  const [fullscreen, setFullscreen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = window.localStorage.getItem(storageKey);
+    setUrl(saved ?? DEFAULT_3D_URL);
+  }, [storageKey]);
+
+  const save = () => {
+    const v = draft.trim();
+    if (!v) return;
+    window.localStorage.setItem(storageKey, v);
+    setUrl(v);
+    setOpen(false);
+  };
+
+  const reset = () => {
+    window.localStorage.removeItem(storageKey);
+    setUrl(DEFAULT_3D_URL);
+  };
+
+  return (
+    <Card className="p-4">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h3 className="font-semibold flex items-center gap-2"><Box className="h-4 w-4 text-primary" /> النموذج ثلاثي الأبعاد</h3>
+          <p className="text-xs text-muted-foreground">معاينة تفاعلية مدمجة للنموذج عبر MagicPlan 3D</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (o) setDraft(url); }}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm"><Pencil className="ms-1 h-4 w-4" /> {url && url !== DEFAULT_3D_URL ? "تعديل الرابط" : "إضافة رابط"}</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2"><Link2 className="h-4 w-4" /> رابط النموذج ثلاثي الأبعاد</DialogTitle>
+                <DialogDescription>الصق رابط التضمين (embed) من MagicPlan أو أي خدمة تدعم iframe.</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-2">
+                <Input
+                  dir="ltr"
+                  placeholder="https://3d.magicplan.app/#embed/?key=..."
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                />
+                <p className="text-[11px] text-muted-foreground">يُحفظ الرابط محلياً لهذا المشروع فقط.</p>
+              </div>
+              <DialogFooter className="gap-2 sm:gap-2">
+                <Button variant="ghost" onClick={() => { reset(); setOpen(false); }}>
+                  <Trash2 className="ms-1 h-4 w-4" /> استعادة الافتراضي
+                </Button>
+                <Button onClick={save}>حفظ الرابط</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <Button variant="outline" size="sm" onClick={() => setFullscreen((v) => !v)}>
+            <Maximize2 className="ms-1 h-4 w-4" /> {fullscreen ? "تصغير" : "ملء الشاشة"}
+          </Button>
+          {url && (
+            <Button variant="outline" size="sm" asChild>
+              <a href={url} target="_blank" rel="noreferrer"><Link2 className="ms-1 h-4 w-4" /> فتح في تبويب</a>
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {url ? (
+        <div className={`overflow-hidden rounded-xl border border-border bg-muted ${fullscreen ? "fixed inset-2 z-50 shadow-2xl" : ""}`} style={fullscreen ? undefined : { height: "70vh" }}>
+          <iframe
+            key={url}
+            src={url}
+            title="3D Model"
+            className="h-full w-full"
+            style={fullscreen ? { height: "100%", width: "100%" } : undefined}
+            allow="fullscreen; xr-spatial-tracking; accelerometer; gyroscope; magnetometer"
+            allowFullScreen
+          />
+        </div>
+      ) : (
+        <div className="grid place-items-center rounded-xl border-2 border-dashed border-border bg-muted/30 p-12 text-center">
+          <Box className="h-10 w-10 text-muted-foreground" />
+          <div className="mt-3 font-semibold">لا يوجد نموذج مرفق بعد</div>
+          <div className="text-xs text-muted-foreground">أضف رابط التضمين لعرض النموذج هنا.</div>
+          <Button className="mt-3" onClick={() => { setDraft(""); setOpen(true); }}>
+            <Link2 className="ms-1 h-4 w-4" /> إضافة رابط
+          </Button>
+        </div>
+      )}
+    </Card>
   );
 }
