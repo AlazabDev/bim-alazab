@@ -51,6 +51,7 @@ const groups: NavGroup[] = [
     items: [
       { to: "/projects", icon: FolderKanban, label: "المشاريع" },
       { to: "/files", icon: FileStack, label: "الملفات والمستندات" },
+      { to: "/technical-evidence", icon: FileCheck2, label: "الأدلة الفنية" },
       { to: "/field-analysis", icon: ImageIcon, label: "التحليل الميداني AI" },
     ],
   },
