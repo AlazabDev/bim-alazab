@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell, PageHeader, StatusBadge } from "@/components/app-shell";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,9 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import {
-  ArrowRight, MapPin, Calendar, Users, FileStack, MessageSquare, Share2, Download,
+  ArrowRight, MapPin, Calendar, Users, MessageSquare, Share2, Download,
   Upload, CheckCircle2, Clock, XCircle, FileText, Box, Image as ImageIcon, FileBarChart,
-  Folder, History, Send, AlertTriangle, Sparkles
+  Folder, Send, Sparkles
 } from "lucide-react";
 import { projects, statusMeta, files, fileCategoryLabel, approvals, activity, fieldImages, issues } from "@/lib/mock-data";
 
