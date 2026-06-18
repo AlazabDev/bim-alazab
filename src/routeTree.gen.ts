@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SubmittalsRouteImport } from './routes/submittals'
 import { Route as RfisRouteImport } from './routes/rfis'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as MembersRouteImport } from './routes/members'
@@ -19,6 +20,7 @@ import { Route as IssuesRouteImport } from './routes/issues'
 import { Route as FilesRouteImport } from './routes/files'
 import { Route as FieldAnalysisRouteImport } from './routes/field-analysis'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ApprovalsRouteImport } from './routes/approvals'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as ActivityRouteImport } from './routes/activity'
@@ -35,6 +37,11 @@ const SubmittalsRoute = SubmittalsRouteImport.update({
 const RfisRoute = RfisRouteImport.update({
   id: '/rfis',
   path: '/rfis',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProjectsRoute = ProjectsRouteImport.update({
@@ -75,6 +82,11 @@ const FieldAnalysisRoute = FieldAnalysisRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApprovalsRoute = ApprovalsRouteImport.update({
@@ -118,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/activity': typeof ActivityRoute
   '/analytics': typeof AnalyticsRoute
   '/approvals': typeof ApprovalsRoute
+  '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/field-analysis': typeof FieldAnalysisRoute
   '/files': typeof FilesRoute
@@ -126,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/members': typeof MembersRoute
   '/notifications': typeof NotificationsRoute
   '/projects': typeof ProjectsRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
   '/rfis': typeof RfisRoute
   '/submittals': typeof SubmittalsRoute
   '/projects/$id': typeof ProjectsIdRoute
@@ -137,6 +151,7 @@ export interface FileRoutesByTo {
   '/activity': typeof ActivityRoute
   '/analytics': typeof AnalyticsRoute
   '/approvals': typeof ApprovalsRoute
+  '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/field-analysis': typeof FieldAnalysisRoute
   '/files': typeof FilesRoute
@@ -144,6 +159,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/members': typeof MembersRoute
   '/notifications': typeof NotificationsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/rfis': typeof RfisRoute
   '/submittals': typeof SubmittalsRoute
   '/projects/$id': typeof ProjectsIdRoute
@@ -156,6 +172,7 @@ export interface FileRoutesById {
   '/activity': typeof ActivityRoute
   '/analytics': typeof AnalyticsRoute
   '/approvals': typeof ApprovalsRoute
+  '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/field-analysis': typeof FieldAnalysisRoute
   '/files': typeof FilesRoute
@@ -164,6 +181,7 @@ export interface FileRoutesById {
   '/members': typeof MembersRoute
   '/notifications': typeof NotificationsRoute
   '/projects': typeof ProjectsRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
   '/rfis': typeof RfisRoute
   '/submittals': typeof SubmittalsRoute
   '/projects/$id': typeof ProjectsIdRoute
@@ -177,6 +195,7 @@ export interface FileRouteTypes {
     | '/activity'
     | '/analytics'
     | '/approvals'
+    | '/auth'
     | '/dashboard'
     | '/field-analysis'
     | '/files'
@@ -185,6 +204,7 @@ export interface FileRouteTypes {
     | '/members'
     | '/notifications'
     | '/projects'
+    | '/reset-password'
     | '/rfis'
     | '/submittals'
     | '/projects/$id'
@@ -196,6 +216,7 @@ export interface FileRouteTypes {
     | '/activity'
     | '/analytics'
     | '/approvals'
+    | '/auth'
     | '/dashboard'
     | '/field-analysis'
     | '/files'
@@ -203,6 +224,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/members'
     | '/notifications'
+    | '/reset-password'
     | '/rfis'
     | '/submittals'
     | '/projects/$id'
@@ -214,6 +236,7 @@ export interface FileRouteTypes {
     | '/activity'
     | '/analytics'
     | '/approvals'
+    | '/auth'
     | '/dashboard'
     | '/field-analysis'
     | '/files'
@@ -222,6 +245,7 @@ export interface FileRouteTypes {
     | '/members'
     | '/notifications'
     | '/projects'
+    | '/reset-password'
     | '/rfis'
     | '/submittals'
     | '/projects/$id'
@@ -234,6 +258,7 @@ export interface RootRouteChildren {
   ActivityRoute: typeof ActivityRoute
   AnalyticsRoute: typeof AnalyticsRoute
   ApprovalsRoute: typeof ApprovalsRoute
+  AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRoute
   FieldAnalysisRoute: typeof FieldAnalysisRoute
   FilesRoute: typeof FilesRoute
@@ -242,6 +267,7 @@ export interface RootRouteChildren {
   MembersRoute: typeof MembersRoute
   NotificationsRoute: typeof NotificationsRoute
   ProjectsRoute: typeof ProjectsRouteWithChildren
+  ResetPasswordRoute: typeof ResetPasswordRoute
   RfisRoute: typeof RfisRoute
   SubmittalsRoute: typeof SubmittalsRoute
 }
@@ -260,6 +286,13 @@ declare module '@tanstack/react-router' {
       path: '/rfis'
       fullPath: '/rfis'
       preLoaderRoute: typeof RfisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/projects': {
@@ -316,6 +349,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/approvals': {
@@ -391,6 +431,7 @@ const rootRouteChildren: RootRouteChildren = {
   ActivityRoute: ActivityRoute,
   AnalyticsRoute: AnalyticsRoute,
   ApprovalsRoute: ApprovalsRoute,
+  AuthRoute: AuthRoute,
   DashboardRoute: DashboardRoute,
   FieldAnalysisRoute: FieldAnalysisRoute,
   FilesRoute: FilesRoute,
@@ -399,6 +440,7 @@ const rootRouteChildren: RootRouteChildren = {
   MembersRoute: MembersRoute,
   NotificationsRoute: NotificationsRoute,
   ProjectsRoute: ProjectsRouteWithChildren,
+  ResetPasswordRoute: ResetPasswordRoute,
   RfisRoute: RfisRoute,
   SubmittalsRoute: SubmittalsRoute,
 }
