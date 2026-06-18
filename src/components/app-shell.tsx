@@ -1,16 +1,18 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, FolderKanban, FileStack, ImageIcon, CheckCircle2,
   Users, Bell, Shield, BarChart3, MessageSquare, FileQuestion, FileCheck2,
-  Building2, Settings, LogOut, Search
+  Building2, Settings, LogOut, Search, Loader2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { notifications } from "@/lib/mock-data";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
+import { useAuth } from "@/hooks/use-auth";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const nav = [
   { to: "/dashboard", icon: LayoutDashboard, label: "لوحة القيادة" },
@@ -29,11 +31,48 @@ const nav = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const unread = notifications.filter((n) => !n.read).length;
+  const navigate = useNavigate();
+  const { user, profile, roles, loading, signOut } = useAuth();
+
+  useEffect(() => {
+    if (!loading && !user) navigate({ to: "/auth" });
+  }, [user, loading, navigate]);
+
+  const { data: unread = 0 } = useQuery({
+    queryKey: ["unread-notifs", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("notifications")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user!.id)
+        .eq("read", false);
+      return count ?? 0;
+    },
+  });
+
+  if (loading || !user) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-background" dir="rtl">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  const displayName = profile?.full_name || user.email?.split("@")[0] || "مستخدم";
+  const initials = displayName.split(" ").map((s) => s[0]).slice(0, 2).join("");
+  const roleLabel = roles.includes("admin") ? "مسؤول النظام"
+    : roles.includes("owner") ? "مالك"
+    : roles.includes("editor") ? "محرر"
+    : "مشاهد";
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate({ to: "/auth" });
+  };
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">
-      {/* Sidebar */}
       <aside className="fixed inset-y-0 right-0 z-30 hidden w-64 flex-col bg-gradient-sidebar text-sidebar-foreground lg:flex">
         <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-5">
           <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary text-primary-foreground shadow-elevated">
@@ -68,68 +107,53 @@ export function AppShell({ children }: { children: ReactNode }) {
           </ul>
         </nav>
         <div className="border-t border-sidebar-border p-3">
-          <Link to="/login" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/80 hover:bg-sidebar-accent/60">
+          <button onClick={handleLogout} className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/80 hover:bg-sidebar-accent/60">
             <LogOut className="h-4 w-4" />
             تسجيل الخروج
-          </Link>
+          </button>
         </div>
       </aside>
 
-      {/* Main */}
       <div className="lg:mr-64">
         <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur md:px-6">
           <div className="relative flex-1 max-w-xl">
             <Search className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input placeholder="بحث في المشاريع والملفات والقضايا..." className="pr-9" />
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="h-5 w-5" />
-                {unread > 0 && (
-                  <span className="absolute -top-0.5 -left-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">
-                    {unread}
-                  </span>
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80">
-              <DropdownMenuLabel>الإشعارات</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {notifications.slice(0, 4).map((n) => (
-                <DropdownMenuItem key={n.id} className="flex flex-col items-start gap-0.5 py-2">
-                  <div className="flex w-full items-center justify-between">
-                    <span className="text-sm font-medium">{n.title}</span>
-                    {!n.read && <span className="h-2 w-2 rounded-full bg-primary" />}
-                  </div>
-                  <span className="text-xs text-muted-foreground">{n.body}</span>
-                  <span className="text-[10px] text-muted-foreground/70">{n.time}</span>
-                </DropdownMenuItem>
-              ))}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/notifications" className="w-full text-center text-sm text-primary">عرض كل الإشعارات</Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button asChild variant="ghost" size="icon" className="relative">
+            <Link to="/notifications">
+              <Bell className="h-5 w-5" />
+              {unread > 0 && (
+                <span className="absolute -top-0.5 -left-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">
+                  {unread}
+                </span>
+              )}
+            </Link>
+          </Button>
           <Button variant="ghost" size="icon"><Settings className="h-5 w-5" /></Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="flex items-center gap-2 rounded-full hover:opacity-80">
-                <Avatar className="h-9 w-9"><AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">خ.ف</AvatarFallback></Avatar>
+                <Avatar className="h-9 w-9">
+                  {profile?.avatar_url && <AvatarImage src={profile.avatar_url} alt={displayName} />}
+                  <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">{initials}</AvatarFallback>
+                </Avatar>
                 <div className="hidden text-right md:block">
-                  <div className="text-sm font-semibold leading-tight">م. خالد الفهد</div>
-                  <div className="text-[11px] text-muted-foreground">مدير المشروع</div>
+                  <div className="text-sm font-semibold leading-tight">{displayName}</div>
+                  <div className="text-[11px] text-muted-foreground">{roleLabel}</div>
                 </div>
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>حسابي</DropdownMenuLabel>
+              <DropdownMenuLabel>
+                <div className="font-semibold">{displayName}</div>
+                <div className="text-xs font-normal text-muted-foreground">{user.email}</div>
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>الملف الشخصي</DropdownMenuItem>
               <DropdownMenuItem>الإعدادات</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild><Link to="/login">تسجيل الخروج</Link></DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>تسجيل الخروج</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
