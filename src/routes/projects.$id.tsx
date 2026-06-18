@@ -89,6 +89,7 @@ function ProjectDetail() {
           <TabsTrigger value="versions">الإصدارات</TabsTrigger>
           <TabsTrigger value="approvals">الموافقات</TabsTrigger>
           <TabsTrigger value="ai">تحليل AI</TabsTrigger>
+          <TabsTrigger value="3d">عرض ثلاثي الأبعاد</TabsTrigger>
           <TabsTrigger value="issues">القضايا</TabsTrigger>
           <TabsTrigger value="team">الفريق</TabsTrigger>
           <TabsTrigger value="activity">النشاط</TabsTrigger>
