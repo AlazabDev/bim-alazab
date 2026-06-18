@@ -23,7 +23,7 @@ export const Route = createFileRoute("/projects/$id")({
   loader: ({ params }) => {
     const p = projects.find((x) => x.id === params.id);
     if (!p) throw notFound();
-    return { project: p };
+    return { project: p as (typeof projects)[number] };
   },
   component: ProjectDetail,
 });
