@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { AppShell, PageHeader, StatusBadge } from "@/components/app-shell";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,11 +10,16 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   ArrowRight, MapPin, Calendar, Users, MessageSquare, Share2, Download,
   Upload, CheckCircle2, Clock, XCircle, FileText, Box, Image as ImageIcon, FileBarChart,
-  Folder, Send, Sparkles
+  Folder, Send, Sparkles, Link2, Maximize2, Trash2, Pencil
 } from "lucide-react";
 import { projects, statusMeta, files, fileCategoryLabel, approvals, activity, fieldImages, issues } from "@/lib/mock-data";
+
+const DEFAULT_3D_URL = "https://3d.magicplan.app/#embed/?key=MDI4ZTk1Yzk3ZDVmYTYyMTkwNGJhMTJmNzg2YjM5YWIxNDVlN2FkNTcyMzU0ZTdkYjI0YjYzZjNiNThiOWRkMIG9JC7tWsAig6Nons7D%2FwHBaINGyYSbge4IITM%2BKWqPDmEQDLoeKEL6qllGbr7NOSd%2BRxCa5cRbzS%2FqL4X3IGOH05TzlsAtYXmtLHeim64g";
 
 export const Route = createFileRoute("/projects/$id")({
   head: ({ params }) => {
