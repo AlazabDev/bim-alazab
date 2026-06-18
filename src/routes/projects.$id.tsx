@@ -20,11 +20,6 @@ export const Route = createFileRoute("/projects/$id")({
     const p = projects.find((x) => x.id === params.id);
     return { meta: [{ title: `${p?.name ?? "مشروع"} — bim.alazab.com` }] };
   },
-  loader: ({ params }) => {
-    const p = projects.find((x) => x.id === params.id);
-    if (!p) throw notFound();
-    return { project: p as (typeof projects)[number] };
-  },
   component: ProjectDetail,
 });
 
