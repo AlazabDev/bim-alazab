@@ -9,25 +9,57 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SubmittalsRouteImport } from './routes/submittals'
+import { Route as RfisRouteImport } from './routes/rfis'
 import { Route as ProjectsRouteImport } from './routes/projects'
+import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as MembersRouteImport } from './routes/members'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as IssuesRouteImport } from './routes/issues'
 import { Route as FilesRouteImport } from './routes/files'
 import { Route as FieldAnalysisRouteImport } from './routes/field-analysis'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ApprovalsRouteImport } from './routes/approvals'
+import { Route as AnalyticsRouteImport } from './routes/analytics'
+import { Route as ActivityRouteImport } from './routes/activity'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
 import { Route as ProjectsNewRouteImport } from './routes/projects.new'
 import { Route as ProjectsIdRouteImport } from './routes/projects.$id'
 
+const SubmittalsRoute = SubmittalsRouteImport.update({
+  id: '/submittals',
+  path: '/submittals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RfisRoute = RfisRouteImport.update({
+  id: '/rfis',
+  path: '/rfis',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProjectsRoute = ProjectsRouteImport.update({
   id: '/projects',
   path: '/projects',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MembersRoute = MembersRouteImport.update({
+  id: '/members',
+  path: '/members',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IssuesRoute = IssuesRouteImport.update({
+  id: '/issues',
+  path: '/issues',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FilesRoute = FilesRouteImport.update({
@@ -48,6 +80,16 @@ const DashboardRoute = DashboardRouteImport.update({
 const ApprovalsRoute = ApprovalsRouteImport.update({
   id: '/approvals',
   path: '/approvals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalyticsRoute = AnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ActivityRoute = ActivityRouteImport.update({
+  id: '/activity',
+  path: '/activity',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -73,23 +115,37 @@ const ProjectsIdRoute = ProjectsIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/activity': typeof ActivityRoute
+  '/analytics': typeof AnalyticsRoute
   '/approvals': typeof ApprovalsRoute
   '/dashboard': typeof DashboardRoute
   '/field-analysis': typeof FieldAnalysisRoute
   '/files': typeof FilesRoute
+  '/issues': typeof IssuesRoute
   '/login': typeof LoginRoute
+  '/members': typeof MembersRoute
+  '/notifications': typeof NotificationsRoute
   '/projects': typeof ProjectsRouteWithChildren
+  '/rfis': typeof RfisRoute
+  '/submittals': typeof SubmittalsRoute
   '/projects/$id': typeof ProjectsIdRoute
   '/projects/new': typeof ProjectsNewRoute
   '/projects/': typeof ProjectsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/activity': typeof ActivityRoute
+  '/analytics': typeof AnalyticsRoute
   '/approvals': typeof ApprovalsRoute
   '/dashboard': typeof DashboardRoute
   '/field-analysis': typeof FieldAnalysisRoute
   '/files': typeof FilesRoute
+  '/issues': typeof IssuesRoute
   '/login': typeof LoginRoute
+  '/members': typeof MembersRoute
+  '/notifications': typeof NotificationsRoute
+  '/rfis': typeof RfisRoute
+  '/submittals': typeof SubmittalsRoute
   '/projects/$id': typeof ProjectsIdRoute
   '/projects/new': typeof ProjectsNewRoute
   '/projects': typeof ProjectsIndexRoute
@@ -97,12 +153,19 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/activity': typeof ActivityRoute
+  '/analytics': typeof AnalyticsRoute
   '/approvals': typeof ApprovalsRoute
   '/dashboard': typeof DashboardRoute
   '/field-analysis': typeof FieldAnalysisRoute
   '/files': typeof FilesRoute
+  '/issues': typeof IssuesRoute
   '/login': typeof LoginRoute
+  '/members': typeof MembersRoute
+  '/notifications': typeof NotificationsRoute
   '/projects': typeof ProjectsRouteWithChildren
+  '/rfis': typeof RfisRoute
+  '/submittals': typeof SubmittalsRoute
   '/projects/$id': typeof ProjectsIdRoute
   '/projects/new': typeof ProjectsNewRoute
   '/projects/': typeof ProjectsIndexRoute
@@ -111,35 +174,56 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/activity'
+    | '/analytics'
     | '/approvals'
     | '/dashboard'
     | '/field-analysis'
     | '/files'
+    | '/issues'
     | '/login'
+    | '/members'
+    | '/notifications'
     | '/projects'
+    | '/rfis'
+    | '/submittals'
     | '/projects/$id'
     | '/projects/new'
     | '/projects/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/activity'
+    | '/analytics'
     | '/approvals'
     | '/dashboard'
     | '/field-analysis'
     | '/files'
+    | '/issues'
     | '/login'
+    | '/members'
+    | '/notifications'
+    | '/rfis'
+    | '/submittals'
     | '/projects/$id'
     | '/projects/new'
     | '/projects'
   id:
     | '__root__'
     | '/'
+    | '/activity'
+    | '/analytics'
     | '/approvals'
     | '/dashboard'
     | '/field-analysis'
     | '/files'
+    | '/issues'
     | '/login'
+    | '/members'
+    | '/notifications'
     | '/projects'
+    | '/rfis'
+    | '/submittals'
     | '/projects/$id'
     | '/projects/new'
     | '/projects/'
@@ -147,16 +231,37 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ActivityRoute: typeof ActivityRoute
+  AnalyticsRoute: typeof AnalyticsRoute
   ApprovalsRoute: typeof ApprovalsRoute
   DashboardRoute: typeof DashboardRoute
   FieldAnalysisRoute: typeof FieldAnalysisRoute
   FilesRoute: typeof FilesRoute
+  IssuesRoute: typeof IssuesRoute
   LoginRoute: typeof LoginRoute
+  MembersRoute: typeof MembersRoute
+  NotificationsRoute: typeof NotificationsRoute
   ProjectsRoute: typeof ProjectsRouteWithChildren
+  RfisRoute: typeof RfisRoute
+  SubmittalsRoute: typeof SubmittalsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/submittals': {
+      id: '/submittals'
+      path: '/submittals'
+      fullPath: '/submittals'
+      preLoaderRoute: typeof SubmittalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rfis': {
+      id: '/rfis'
+      path: '/rfis'
+      fullPath: '/rfis'
+      preLoaderRoute: typeof RfisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/projects': {
       id: '/projects'
       path: '/projects'
@@ -164,11 +269,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/members': {
+      id: '/members'
+      path: '/members'
+      fullPath: '/members'
+      preLoaderRoute: typeof MembersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/issues': {
+      id: '/issues'
+      path: '/issues'
+      fullPath: '/issues'
+      preLoaderRoute: typeof IssuesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/files': {
@@ -197,6 +323,20 @@ declare module '@tanstack/react-router' {
       path: '/approvals'
       fullPath: '/approvals'
       preLoaderRoute: typeof ApprovalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analytics': {
+      id: '/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/activity': {
+      id: '/activity'
+      path: '/activity'
+      fullPath: '/activity'
+      preLoaderRoute: typeof ActivityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -248,12 +388,19 @@ const ProjectsRouteWithChildren = ProjectsRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ActivityRoute: ActivityRoute,
+  AnalyticsRoute: AnalyticsRoute,
   ApprovalsRoute: ApprovalsRoute,
   DashboardRoute: DashboardRoute,
   FieldAnalysisRoute: FieldAnalysisRoute,
   FilesRoute: FilesRoute,
+  IssuesRoute: IssuesRoute,
   LoginRoute: LoginRoute,
+  MembersRoute: MembersRoute,
+  NotificationsRoute: NotificationsRoute,
   ProjectsRoute: ProjectsRouteWithChildren,
+  RfisRoute: RfisRoute,
+  SubmittalsRoute: SubmittalsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
