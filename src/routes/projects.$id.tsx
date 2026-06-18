@@ -227,6 +227,10 @@ function ProjectDetail() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="3d" className="mt-4">
+          <ThreeDViewer projectId={p.id} />
+        </TabsContent>
+
         <TabsContent value="issues" className="mt-4">
           <Card className="p-6">
             <div className="mb-4 flex items-center justify-between"><h3 className="font-semibold">القضايا والملاحظات</h3><Button>قضية جديدة</Button></div>
