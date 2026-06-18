@@ -33,7 +33,8 @@ const fileStatusTone = {
 const fileStatusLabel = { draft: "مسودة", in_review: "قيد المراجعة", approved: "معتمد", rejected: "مرفوض" } as const;
 
 function ProjectDetail() {
-  const { project: p } = Route.useLoaderData();
+  const { id } = Route.useParams();
+  const p = projects.find((x) => x.id === id) ?? projects[0];
   const meta = statusMeta[p.status];
   return (
     <AppShell>
