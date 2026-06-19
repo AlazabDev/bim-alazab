@@ -334,6 +334,129 @@ export type Database = {
         }
         Relationships: []
       }
+      plumbing_checks: {
+        Row: {
+          check_type: string
+          created_at: string
+          evidence_id: string | null
+          id: string
+          input_data: Json
+          notes: string | null
+          project_id: string
+          result_data: Json
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          check_type: string
+          created_at?: string
+          evidence_id?: string | null
+          id?: string
+          input_data?: Json
+          notes?: string | null
+          project_id: string
+          result_data?: Json
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          check_type?: string
+          created_at?: string
+          evidence_id?: string | null
+          id?: string
+          input_data?: Json
+          notes?: string | null
+          project_id?: string
+          result_data?: Json
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plumbing_checks_evidence_id_fkey"
+            columns: ["evidence_id"]
+            isOneToOne: false
+            referencedRelation: "technical_evidence"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plumbing_checks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plumbing_fixtures: {
+        Row: {
+          cold_water: boolean | null
+          created_at: string
+          drain_diameter_mm: number | null
+          drain_required: boolean | null
+          drainage_fixture_units: number | null
+          evidence_id: string | null
+          fixture_type: string
+          hot_water: boolean | null
+          id: string
+          notes: string | null
+          project_id: string
+          quantity: number
+          space_name: string
+          updated_at: string
+          water_fixture_units: number | null
+        }
+        Insert: {
+          cold_water?: boolean | null
+          created_at?: string
+          drain_diameter_mm?: number | null
+          drain_required?: boolean | null
+          drainage_fixture_units?: number | null
+          evidence_id?: string | null
+          fixture_type: string
+          hot_water?: boolean | null
+          id?: string
+          notes?: string | null
+          project_id: string
+          quantity?: number
+          space_name: string
+          updated_at?: string
+          water_fixture_units?: number | null
+        }
+        Update: {
+          cold_water?: boolean | null
+          created_at?: string
+          drain_diameter_mm?: number | null
+          drain_required?: boolean | null
+          drainage_fixture_units?: number | null
+          evidence_id?: string | null
+          fixture_type?: string
+          hot_water?: boolean | null
+          id?: string
+          notes?: string | null
+          project_id?: string
+          quantity?: number
+          space_name?: string
+          updated_at?: string
+          water_fixture_units?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plumbing_fixtures_evidence_id_fkey"
+            columns: ["evidence_id"]
+            isOneToOne: false
+            referencedRelation: "technical_evidence"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plumbing_fixtures_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -457,6 +580,119 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      technical_evidence: {
+        Row: {
+          approved_by: string | null
+          created_at: string
+          decision_notes: string | null
+          description: string | null
+          discipline: string
+          evidence_type: string
+          id: string
+          metadata: Json
+          prepared_by: string | null
+          project_id: string
+          report_version: string | null
+          reviewed_by: string | null
+          source_software: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          approved_by?: string | null
+          created_at?: string
+          decision_notes?: string | null
+          description?: string | null
+          discipline: string
+          evidence_type: string
+          id?: string
+          metadata?: Json
+          prepared_by?: string | null
+          project_id: string
+          report_version?: string | null
+          reviewed_by?: string | null
+          source_software?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          approved_by?: string | null
+          created_at?: string
+          decision_notes?: string | null
+          description?: string | null
+          discipline?: string
+          evidence_type?: string
+          id?: string
+          metadata?: Json
+          prepared_by?: string | null
+          project_id?: string
+          report_version?: string | null
+          reviewed_by?: string | null
+          source_software?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "technical_evidence_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      technical_evidence_files: {
+        Row: {
+          created_at: string
+          evidence_id: string
+          file_id: string | null
+          file_name: string | null
+          id: string
+          mime_type: string | null
+          size_bytes: number | null
+          storage_path: string | null
+        }
+        Insert: {
+          created_at?: string
+          evidence_id: string
+          file_id?: string | null
+          file_name?: string | null
+          id?: string
+          mime_type?: string | null
+          size_bytes?: number | null
+          storage_path?: string | null
+        }
+        Update: {
+          created_at?: string
+          evidence_id?: string
+          file_id?: string | null
+          file_name?: string | null
+          id?: string
+          mime_type?: string | null
+          size_bytes?: number | null
+          storage_path?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "technical_evidence_files_evidence_id_fkey"
+            columns: ["evidence_id"]
+            isOneToOne: false
+            referencedRelation: "technical_evidence"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "technical_evidence_files_file_id_fkey"
+            columns: ["file_id"]
+            isOneToOne: false
+            referencedRelation: "files"
             referencedColumns: ["id"]
           },
         ]
