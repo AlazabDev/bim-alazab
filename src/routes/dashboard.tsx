@@ -81,7 +81,28 @@ const botActions = [
 ] as const;
 
 function DashboardPage() {
+  const evidenceQuery = useQuery({
+    queryKey: ["technical-evidence"],
+    queryFn: () => fetchTechnicalEvidence(),
+  });
+  const evidenceList = evidenceQuery.data ?? [];
+  const evidenceReadiness = (["hvac", "lighting", "plumbing"] as const).map((d) => {
+    const items = evidenceList.filter((e) => e.discipline === d);
+    const approved = items.filter((e) => e.status === "approved").length;
+    return {
+      label: d === "hvac" ? "HVAC" : d === "lighting" ? "Lighting" : "Plumbing",
+      value: items.length ? Math.round((approved / items.length) * 100) : 0,
+      note: `${items.length} تقرير / ${approved} معتمد`,
+    };
+  });
+  evidenceReadiness.push({
+    label: "As-Built",
+    value: 54,
+    note: "Final drawings and records",
+  });
+
   return (
+
     <AppShell>
       <PageHeader
         title="مركز تحكم BIM"
