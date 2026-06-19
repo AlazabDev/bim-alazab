@@ -42,6 +42,9 @@ import {
   projects,
   statusMeta,
 } from "@/lib/mock-data";
+import { useQuery } from "@tanstack/react-query";
+import { fetchTechnicalEvidence } from "@/lib/technical-evidence-api";
+
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "مركز تحكم BIM — Alazab BIM" }] }),
@@ -65,12 +68,8 @@ const commandFlow = [
   { label: "Decision", description: "اعتماد، رفض، تعليق، أو تصعيد", status: "قادم" },
 ];
 
-const evidenceReadiness = [
-  { label: "HVAC", value: 82, note: "HAP / Load reports" },
-  { label: "Lighting", value: 76, note: "DIALux / Lux evidence" },
-  { label: "Plumbing", value: 38, note: "Water and drainage layer" },
-  { label: "As-Built", value: 54, note: "Final drawings and records" },
-];
+// evidence readiness is computed from live data inside the component
+
 
 const botActions = [
   { title: "متابعة حالة مشروع", to: "/projects", icon: FolderKanban },
@@ -82,7 +81,28 @@ const botActions = [
 ] as const;
 
 function DashboardPage() {
+  const evidenceQuery = useQuery({
+    queryKey: ["technical-evidence"],
+    queryFn: () => fetchTechnicalEvidence(),
+  });
+  const evidenceList = evidenceQuery.data ?? [];
+  const evidenceReadiness = (["hvac", "lighting", "plumbing"] as const).map((d) => {
+    const items = evidenceList.filter((e) => e.discipline === d);
+    const approved = items.filter((e) => e.status === "approved").length;
+    return {
+      label: d === "hvac" ? "HVAC" : d === "lighting" ? "Lighting" : "Plumbing",
+      value: items.length ? Math.round((approved / items.length) * 100) : 0,
+      note: `${items.length} تقرير / ${approved} معتمد`,
+    };
+  });
+  evidenceReadiness.push({
+    label: "As-Built",
+    value: 54,
+    note: "Final drawings and records",
+  });
+
   return (
+
     <AppShell>
       <PageHeader
         title="مركز تحكم BIM"
