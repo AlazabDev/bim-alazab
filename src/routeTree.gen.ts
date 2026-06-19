@@ -9,12 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TechnicalEvidenceRouteImport } from './routes/technical-evidence'
 import { Route as SubmittalsRouteImport } from './routes/submittals'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as RfisRouteImport } from './routes/rfis'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PlumbingSystemRouteImport } from './routes/plumbing-system'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as MembersRouteImport } from './routes/members'
 import { Route as LoginRouteImport } from './routes/login'
@@ -32,6 +34,11 @@ import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
 import { Route as ProjectsNewRouteImport } from './routes/projects.new'
 import { Route as ProjectsIdRouteImport } from './routes/projects.$id'
 
+const TechnicalEvidenceRoute = TechnicalEvidenceRouteImport.update({
+  id: '/technical-evidence',
+  path: '/technical-evidence',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SubmittalsRoute = SubmittalsRouteImport.update({
   id: '/submittals',
   path: '/submittals',
@@ -60,6 +67,11 @@ const ProjectsRoute = ProjectsRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlumbingSystemRoute = PlumbingSystemRouteImport.update({
+  id: '/plumbing-system',
+  path: '/plumbing-system',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NotificationsRoute = NotificationsRouteImport.update({
@@ -157,12 +169,14 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/members': typeof MembersRoute
   '/notifications': typeof NotificationsRoute
+  '/plumbing-system': typeof PlumbingSystemRoute
   '/profile': typeof ProfileRoute
   '/projects': typeof ProjectsRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/rfis': typeof RfisRoute
   '/settings': typeof SettingsRoute
   '/submittals': typeof SubmittalsRoute
+  '/technical-evidence': typeof TechnicalEvidenceRoute
   '/projects/$id': typeof ProjectsIdRoute
   '/projects/new': typeof ProjectsNewRoute
   '/projects/': typeof ProjectsIndexRoute
@@ -181,11 +195,13 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/members': typeof MembersRoute
   '/notifications': typeof NotificationsRoute
+  '/plumbing-system': typeof PlumbingSystemRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
   '/rfis': typeof RfisRoute
   '/settings': typeof SettingsRoute
   '/submittals': typeof SubmittalsRoute
+  '/technical-evidence': typeof TechnicalEvidenceRoute
   '/projects/$id': typeof ProjectsIdRoute
   '/projects/new': typeof ProjectsNewRoute
   '/projects': typeof ProjectsIndexRoute
@@ -205,12 +221,14 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/members': typeof MembersRoute
   '/notifications': typeof NotificationsRoute
+  '/plumbing-system': typeof PlumbingSystemRoute
   '/profile': typeof ProfileRoute
   '/projects': typeof ProjectsRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/rfis': typeof RfisRoute
   '/settings': typeof SettingsRoute
   '/submittals': typeof SubmittalsRoute
+  '/technical-evidence': typeof TechnicalEvidenceRoute
   '/projects/$id': typeof ProjectsIdRoute
   '/projects/new': typeof ProjectsNewRoute
   '/projects/': typeof ProjectsIndexRoute
@@ -231,12 +249,14 @@ export interface FileRouteTypes {
     | '/login'
     | '/members'
     | '/notifications'
+    | '/plumbing-system'
     | '/profile'
     | '/projects'
     | '/reset-password'
     | '/rfis'
     | '/settings'
     | '/submittals'
+    | '/technical-evidence'
     | '/projects/$id'
     | '/projects/new'
     | '/projects/'
@@ -255,11 +275,13 @@ export interface FileRouteTypes {
     | '/login'
     | '/members'
     | '/notifications'
+    | '/plumbing-system'
     | '/profile'
     | '/reset-password'
     | '/rfis'
     | '/settings'
     | '/submittals'
+    | '/technical-evidence'
     | '/projects/$id'
     | '/projects/new'
     | '/projects'
@@ -278,12 +300,14 @@ export interface FileRouteTypes {
     | '/login'
     | '/members'
     | '/notifications'
+    | '/plumbing-system'
     | '/profile'
     | '/projects'
     | '/reset-password'
     | '/rfis'
     | '/settings'
     | '/submittals'
+    | '/technical-evidence'
     | '/projects/$id'
     | '/projects/new'
     | '/projects/'
@@ -303,16 +327,25 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MembersRoute: typeof MembersRoute
   NotificationsRoute: typeof NotificationsRoute
+  PlumbingSystemRoute: typeof PlumbingSystemRoute
   ProfileRoute: typeof ProfileRoute
   ProjectsRoute: typeof ProjectsRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
   RfisRoute: typeof RfisRoute
   SettingsRoute: typeof SettingsRoute
   SubmittalsRoute: typeof SubmittalsRoute
+  TechnicalEvidenceRoute: typeof TechnicalEvidenceRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/technical-evidence': {
+      id: '/technical-evidence'
+      path: '/technical-evidence'
+      fullPath: '/technical-evidence'
+      preLoaderRoute: typeof TechnicalEvidenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/submittals': {
       id: '/submittals'
       path: '/submittals'
@@ -353,6 +386,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plumbing-system': {
+      id: '/plumbing-system'
+      path: '/plumbing-system'
+      fullPath: '/plumbing-system'
+      preLoaderRoute: typeof PlumbingSystemRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/notifications': {
@@ -500,12 +540,14 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MembersRoute: MembersRoute,
   NotificationsRoute: NotificationsRoute,
+  PlumbingSystemRoute: PlumbingSystemRoute,
   ProfileRoute: ProfileRoute,
   ProjectsRoute: ProjectsRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
   RfisRoute: RfisRoute,
   SettingsRoute: SettingsRoute,
   SubmittalsRoute: SubmittalsRoute,
+  TechnicalEvidenceRoute: TechnicalEvidenceRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
