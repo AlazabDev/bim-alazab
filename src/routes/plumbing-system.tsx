@@ -1,319 +1,745 @@
+import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
-  AlertTriangle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  AlertCircle,
   ArrowLeft,
-  Calculator,
-  CheckCircle2,
   ClipboardList,
   Droplets,
   FileCheck2,
-  Gauge,
-  GitBranch,
-  Layers3,
+  Inbox,
+  Loader2,
+  Pencil,
   Plus,
-  Ruler,
-  Settings2,
-  Upload,
-  Waves,
+  Trash2,
 } from "lucide-react";
+import { fetchProjects } from "@/lib/projects-api";
+import {
+  createPlumbingCheck,
+  createPlumbingFixture,
+  createTechnicalEvidence,
+  deletePlumbingFixture,
+  fetchPlumbingChecks,
+  fetchPlumbingFixtures,
+  updatePlumbingFixture,
+  type CheckStatus,
+  type CheckType,
+  type PlumbingCheck,
+  type PlumbingFixture,
+} from "@/lib/technical-evidence-api";
 
 export const Route = createFileRoute("/plumbing-system")({
-  head: () => ({ meta: [{ title: "نظام السباكة المخصص — Alazab BIM" }] }),
+  head: () => ({ meta: [{ title: "نظام السباكة — Alazab BIM" }] }),
   component: PlumbingSystemPage,
 });
 
-type PlumbingStatus = "ready" | "review" | "next";
-
-type PlumbingModule = {
-  title: string;
-  description: string;
-  icon: typeof Droplets;
-  readiness: number;
-  status: PlumbingStatus;
-  inputs: string[];
-  outputs: string[];
+const checkTypeLabels: Record<CheckType, string> = {
+  water_demand: "Water Demand",
+  pipe_velocity: "Pipe Velocity",
+  drainage_slope: "Drainage Slope",
+  cleanout: "Cleanout Control",
+  riser: "Riser Review",
+  shaft: "Shaft Coordination",
 };
 
-const statusMap: Record<PlumbingStatus, { label: string; className: string }> = {
-  ready: { label: "جاهز أوليًا", className: "bg-success/15 text-success border-success/30" },
-  review: { label: "تحت الضبط", className: "bg-warning/15 text-warning-foreground border-warning/30" },
-  next: { label: "مرحلة تالية", className: "bg-muted text-muted-foreground border-border" },
+const checkStatusMeta: Record<CheckStatus, { label: string; className: string }> = {
+  draft: { label: "مسودة", className: "bg-muted text-muted-foreground border-border" },
+  pass: { label: "ناجح", className: "bg-success/15 text-success border-success/30" },
+  warning: {
+    label: "تحذير",
+    className: "bg-warning/15 text-warning-foreground border-warning/30",
+  },
+  fail: {
+    label: "فاشل",
+    className: "bg-destructive/15 text-destructive border-destructive/30",
+  },
+  approved: { label: "معتمد", className: "bg-success/15 text-success border-success/30" },
 };
-
-const modules: PlumbingModule[] = [
-  {
-    title: "Fixture Schedule",
-    description: "حصر الأجهزة الصحية ونقاط التغذية والصرف لكل فراغ.",
-    icon: ClipboardList,
-    readiness: 72,
-    status: "ready",
-    inputs: ["Space", "Fixture type", "Quantity", "Hot/Cold water", "Drain point"],
-    outputs: ["Fixture count", "Water demand", "Drainage demand", "Review notes"],
-  },
-  {
-    title: "Water Supply",
-    description: "تجميع نقاط التغذية وحساب أقطار مبدئية ومسارات الضغط.",
-    icon: Droplets,
-    readiness: 55,
-    status: "review",
-    inputs: ["Fixture units", "Pressure source", "Pipe material", "Allowed velocity"],
-    outputs: ["Pipe size", "Flow estimate", "Pressure note", "Valve schedule"],
-  },
-  {
-    title: "Drainage & Slopes",
-    description: "مراجعة الصرف والميول ونقاط التنظيف وربطها بالتقرير الفني.",
-    icon: Waves,
-    readiness: 50,
-    status: "review",
-    inputs: ["Drainage units", "Pipe run", "Slope", "Cleanout spacing"],
-    outputs: ["Slope check", "Pipe size", "Cleanout list", "Risk notes"],
-  },
-  {
-    title: "Risers & Shafts",
-    description: "تتبع الرايزرات والشفتات وربطها بالأدوار والملفات.",
-    icon: GitBranch,
-    readiness: 35,
-    status: "next",
-    inputs: ["Floor", "Riser code", "Shaft size", "Connected fixtures"],
-    outputs: ["Riser schedule", "Coordination notes", "Clash risk"],
-  },
-];
-
-const calculationRules = [
-  { label: "Water Demand", rule: "Fixture units → Estimated flow → Pipe sizing" },
-  { label: "Pipe Velocity", rule: "Check against allowed velocity by pipe material" },
-  { label: "Drainage Slope", rule: "Pipe diameter + route length + minimum slope" },
-  { label: "Cleanout Control", rule: "Direction changes + spacing + access requirement" },
-  { label: "Evidence Output", rule: "Every check produces a report record with revision and status" },
-];
-
-const fixtureRows = [
-  { space: "WC", fixture: "Water Closet", supply: "Cold", drain: "110 mm", status: "مطلوب" },
-  { space: "WC", fixture: "Wash Basin", supply: "Hot / Cold", drain: "50 mm", status: "مطلوب" },
-  { space: "Pantry", fixture: "Kitchen Sink", supply: "Hot / Cold", drain: "75 mm", status: "مراجعة" },
-  { space: "Service", fixture: "Floor Drain", supply: "-", drain: "75 mm", status: "مطلوب" },
-];
-
-const reportFields = [
-  "Project Code",
-  "Branch / Site",
-  "Plumbing Zone",
-  "Fixture Schedule",
-  "Water Supply Summary",
-  "Drainage Summary",
-  "Pipe Material",
-  "Design Assumptions",
-  "Reviewer",
-  "Approval Status",
-];
 
 function PlumbingSystemPage() {
-  const readiness = Math.round(modules.reduce((total, item) => total + item.readiness, 0) / modules.length);
+  const projectsQuery = useQuery({ queryKey: ["projects"], queryFn: fetchProjects });
+  const [projectId, setProjectId] = useState<string>("");
+
+  // Auto-pick first project on load
+  if (!projectId && projectsQuery.data && projectsQuery.data.length > 0) {
+    setProjectId(projectsQuery.data[0].id);
+  }
 
   return (
     <AppShell>
       <PageHeader
         title="نظام السباكة المخصص"
-        description="طبقة حساب ومراجعة داخلية للسباكة بدل الاعتماد الكامل على برنامج خارجي في المرحلة الأولى"
-        badge={<Badge variant="outline" className="bg-primary/10 text-primary border-primary/25">Custom Plumbing Layer</Badge>}
+        description="حصر الأجهزة، تجميع نقاط التغذية والصرف، وتشغيل مراجعات أقطار وميول مبدئية"
+        badge={
+          <Badge variant="outline" className="border-primary/25 bg-primary/10 text-primary">
+            Custom Plumbing Layer
+          </Badge>
+        }
         actions={
-          <>
-            <Button variant="outline">
-              <Upload className="ms-1 h-4 w-4" /> رفع تقرير
-            </Button>
-            <Button>
-              <Plus className="ms-1 h-4 w-4" /> سجل سباكة جديد
-            </Button>
-          </>
+          <div className="flex items-center gap-2">
+            <div className="w-56">
+              <Select value={projectId} onValueChange={setProjectId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="اختر مشروع" />
+                </SelectTrigger>
+                <SelectContent>
+                  {(projectsQuery.data ?? []).map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {projectId && <CreatePlumbingEvidenceButton projectId={projectId} />}
+          </div>
         }
       />
 
-      <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-        <Card className="relative overflow-hidden p-6 shadow-card">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,var(--color-primary)/12,transparent_35%),radial-gradient(circle_at_bottom_right,var(--color-accent)/10,transparent_30%)]" />
-          <div className="relative">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
-              <Droplets className="h-4 w-4" />
-              Plumbing calculation evidence
-            </div>
-            <h2 className="text-2xl font-black md:text-3xl">نظام سباكة مخصص للعزب</h2>
-            <p className="mt-3 max-w-3xl leading-8 text-muted-foreground">
-              النظام يبدأ كقالب حساب ومراجعة: يحصر الأجهزة الصحية، يجمع نقاط التغذية والصرف، ينتج مراجعات أقطار وميول مبدئية، ثم يربط النتيجة بسجل Technical Evidence داخل المشروع.
-            </p>
-            <div className="mt-5 max-w-xl">
-              <div className="mb-2 flex items-center justify-between text-sm">
-                <span className="font-bold">جاهزية النظام المخصص</span>
-                <span className="font-black text-primary">{readiness}%</span>
-              </div>
-              <Progress value={readiness} className="h-2" />
-            </div>
-          </div>
+      {!projectId && (
+        <Card className="p-10 text-center text-muted-foreground">
+          اختر مشروعًا للبدء.
         </Card>
+      )}
 
-        <Card className="p-5 shadow-card">
-          <h3 className="mb-4 font-bold">قرار التصميم</h3>
-          <div className="space-y-3 text-sm leading-7 text-muted-foreground">
-            <p>
-              يتم اعتبار البرامج الخارجية مثل CYPEPLUMBING مصدرًا اختياريًا، وليس شرطًا لتشغيل طبقة السباكة.
+      {projectId && (
+        <>
+          <FixturesSection projectId={projectId} />
+          <ChecksSection projectId={projectId} />
+        </>
+      )}
+
+      <Card className="mt-4 flex items-center justify-between p-4">
+        <div className="text-sm text-muted-foreground">
+          هذه الطبقة تخدم Plumbing Evidence داخل المشروع.
+        </div>
+        <Button asChild variant="outline">
+          <Link to="/technical-evidence">
+            الأدلة الفنية <ArrowLeft className="mr-2 h-4 w-4" />
+          </Link>
+        </Button>
+      </Card>
+    </AppShell>
+  );
+}
+
+// ----- Fixtures -----
+
+function FixturesSection({ projectId }: { projectId: string }) {
+  const qc = useQueryClient();
+  const fixturesQuery = useQuery({
+    queryKey: ["plumbing-fixtures", projectId],
+    queryFn: () => fetchPlumbingFixtures(projectId),
+  });
+
+  const totals = useMemo(() => {
+    const list = fixturesQuery.data ?? [];
+    return {
+      count: list.reduce((s, f) => s + (f.quantity ?? 0), 0),
+      water: list.reduce(
+        (s, f) => s + (Number(f.water_fixture_units) || 0) * (f.quantity ?? 1),
+        0,
+      ),
+      drain: list.reduce(
+        (s, f) => s + (Number(f.drainage_fixture_units) || 0) * (f.quantity ?? 1),
+        0,
+      ),
+      hot: list.filter((f) => f.hot_water).length,
+      drainReq: list.filter((f) => f.drain_required).length,
+    };
+  }, [fixturesQuery.data]);
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deletePlumbingFixture(id),
+    onSuccess: () => {
+      toast.success("تم الحذف");
+      qc.invalidateQueries({ queryKey: ["plumbing-fixtures", projectId] });
+    },
+    onError: (e: Error) => toast.error("فشل الحذف", { description: e.message }),
+  });
+
+  const stats = [
+    { label: "إجمالي الأجهزة", value: totals.count },
+    { label: "Water Fixture Units", value: totals.water.toFixed(1) },
+    { label: "Drainage Fixture Units", value: totals.drain.toFixed(1) },
+    { label: "تحتاج ماء ساخن", value: totals.hot },
+    { label: "تحتاج صرف", value: totals.drainReq },
+  ];
+
+  return (
+    <section className="mt-4 grid gap-4">
+      <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-5">
+        {stats.map((s) => (
+          <Card key={s.label} className="p-4">
+            <Droplets className="mb-3 h-5 w-5 text-primary" />
+            <div className="text-2xl font-black tabular-nums">{s.value}</div>
+            <div className="text-xs text-muted-foreground">{s.label}</div>
+          </Card>
+        ))}
+      </div>
+
+      <Card className="p-5">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h3 className="flex items-center gap-2 font-bold">
+              <ClipboardList className="h-4 w-4" /> Fixture Schedule
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              حصر الأجهزة الصحية لكل فراغ
             </p>
-            <p>
-              المسار الأساسي داخل Alazab BIM هو قالب سباكة مخصص ينتج Evidence قابل للمراجعة والاعتماد.
-            </p>
           </div>
-          <div className="mt-4 rounded-xl border border-success/25 bg-success/10 p-3 text-sm font-bold text-success">
-            <CheckCircle2 className="ms-2 inline h-4 w-4" />
-            Plumbing = Custom Evidence System first
-          </div>
-        </Card>
-      </section>
+          <FixtureDialog projectId={projectId} />
+        </div>
 
-      <section className="mt-4 grid gap-4 xl:grid-cols-4">
-        {modules.map((item) => {
-          const Icon = item.icon;
-          const meta = statusMap[item.status];
-          return (
-            <Card key={item.title} className="p-5 shadow-card">
-              <div className="mb-4 flex items-start justify-between gap-3">
-                <div className="grid h-11 w-11 place-items-center rounded-xl bg-primary/10 text-primary">
-                  <Icon className="h-5 w-5" />
-                </div>
-                <Badge variant="outline" className={meta.className}>{meta.label}</Badge>
-              </div>
-              <h3 className="font-black">{item.title}</h3>
-              <p className="mt-2 min-h-16 text-sm leading-7 text-muted-foreground">{item.description}</p>
-              <div className="mt-4">
-                <div className="mb-1 flex justify-between text-xs">
-                  <span className="font-bold">جاهزية</span>
-                  <span className="font-black text-primary">{item.readiness}%</span>
-                </div>
-                <Progress value={item.readiness} className="h-2" />
-              </div>
-              <MiniList title="Inputs" items={item.inputs} />
-              <MiniList title="Outputs" items={item.outputs} />
-            </Card>
-          );
-        })}
-      </section>
-
-      <section className="mt-4 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-        <Card className="p-5">
-          <div className="mb-4 flex items-center gap-2">
-            <Calculator className="h-5 w-5 text-primary" />
-            <h3 className="font-bold">منطق الحساب والمراجعة</h3>
+        {fixturesQuery.isLoading && (
+          <div className="flex items-center justify-center py-8 text-muted-foreground">
+            <Loader2 className="ms-2 h-4 w-4 animate-spin" /> جاري التحميل...
           </div>
-          <div className="space-y-3">
-            {calculationRules.map((item, index) => (
-              <div key={item.label} className="flex gap-3 rounded-xl border border-border bg-muted/20 p-3">
-                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary text-xs font-black text-primary-foreground">
-                  {index + 1}
-                </div>
-                <div>
-                  <div className="font-bold">{item.label}</div>
-                  <div className="text-xs leading-6 text-muted-foreground">{item.rule}</div>
-                </div>
-              </div>
-            ))}
+        )}
+        {fixturesQuery.isError && (
+          <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+            <AlertCircle className="h-4 w-4" /> تعذّر تحميل البيانات.
           </div>
-        </Card>
-
-        <Card className="p-5">
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <h3 className="font-bold">Fixture Schedule مبدئي</h3>
-              <p className="text-xs text-muted-foreground">بداية قالب الحصر قبل ربط قاعدة البيانات</p>
-            </div>
-            <Ruler className="h-5 w-5 text-primary" />
+        )}
+        {fixturesQuery.data && fixturesQuery.data.length === 0 && (
+          <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-muted/20 p-10 text-center text-muted-foreground">
+            <Inbox className="h-8 w-8" />
+            <div className="font-bold">لا توجد أجهزة بعد</div>
+            <div className="text-xs">ابدأ بإضافة Fixture جديد.</div>
           </div>
-          <div className="overflow-hidden rounded-xl border border-border">
+        )}
+        {fixturesQuery.data && fixturesQuery.data.length > 0 && (
+          <div className="overflow-x-auto rounded-xl border border-border">
             <table className="w-full text-sm">
               <thead className="bg-muted/50 text-xs text-muted-foreground">
                 <tr>
                   <th className="p-3 text-right">الفراغ</th>
                   <th className="p-3 text-right">الجهاز</th>
+                  <th className="p-3 text-right">الكمية</th>
                   <th className="p-3 text-right">التغذية</th>
-                  <th className="p-3 text-right">الصرف</th>
-                  <th className="p-3 text-right">الحالة</th>
+                  <th className="p-3 text-right">قطر الصرف</th>
+                  <th className="p-3 text-right">WFU</th>
+                  <th className="p-3 text-right">DFU</th>
+                  <th className="p-3 text-right">إجراءات</th>
                 </tr>
               </thead>
               <tbody>
-                {fixtureRows.map((row) => (
-                  <tr key={`${row.space}-${row.fixture}`} className="border-t border-border">
-                    <td className="p-3 font-semibold">{row.space}</td>
-                    <td className="p-3">{row.fixture}</td>
-                    <td className="p-3 text-muted-foreground">{row.supply}</td>
-                    <td className="p-3 text-muted-foreground">{row.drain}</td>
+                {fixturesQuery.data.map((row) => (
+                  <tr key={row.id} className="border-t border-border">
+                    <td className="p-3 font-semibold">{row.space_name}</td>
+                    <td className="p-3">{row.fixture_type}</td>
+                    <td className="p-3 tabular-nums">{row.quantity}</td>
+                    <td className="p-3 text-muted-foreground">
+                      {[row.hot_water && "حار", row.cold_water && "بارد"]
+                        .filter(Boolean)
+                        .join(" / ") || "—"}
+                    </td>
+                    <td className="p-3 text-muted-foreground">
+                      {row.drain_required
+                        ? `${row.drain_diameter_mm ?? "—"} mm`
+                        : "—"}
+                    </td>
+                    <td className="p-3 tabular-nums">
+                      {row.water_fixture_units ?? "—"}
+                    </td>
+                    <td className="p-3 tabular-nums">
+                      {row.drainage_fixture_units ?? "—"}
+                    </td>
                     <td className="p-3">
-                      <Badge variant="secondary" className="rounded-md text-[11px]">{row.status}</Badge>
+                      <div className="flex items-center gap-1">
+                        <FixtureDialog projectId={projectId} fixture={row} />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            if (confirm(`حذف ${row.fixture_type}؟`)) {
+                              deleteMutation.mutate(row.id);
+                            }
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </Card>
-      </section>
-
-      <section className="mt-4 grid gap-4 lg:grid-cols-[1fr_1fr]">
-        <Card className="p-5">
-          <div className="mb-4 flex items-center gap-2">
-            <FileCheck2 className="h-5 w-5 text-primary" />
-            <h3 className="font-bold">قالب تقرير السباكة</h3>
-          </div>
-          <div className="grid gap-3 md:grid-cols-2">
-            {reportFields.map((field) => (
-              <div key={field} className="rounded-xl border border-border bg-muted/25 p-3 text-sm font-semibold">
-                {field}
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        <Card className="p-5">
-          <div className="mb-4 flex items-center gap-2">
-            <Settings2 className="h-5 w-5 text-primary" />
-            <h3 className="font-bold">المرحلة التالية</h3>
-          </div>
-          <div className="space-y-3">
-            {[
-              "إنشاء جدول plumbing_evidence في Supabase",
-              "إنشاء جدول plumbing_fixtures لحصر الأجهزة",
-              "ربط زر سجل سباكة جديد بفورم إدخال",
-              "تصدير PDF Report من بيانات النظام",
-              "ربط التقرير بحالة Approval داخل المشروع",
-            ].map((item) => (
-              <div key={item} className="flex items-center gap-2 rounded-xl border border-border bg-card p-3 text-sm">
-                <AlertTriangle className="h-4 w-4 text-warning" />
-                <span>{item}</span>
-              </div>
-            ))}
-          </div>
-          <Button asChild variant="outline" className="mt-4 w-full">
-            <Link to="/technical-evidence">
-              العودة إلى الأدلة الفنية <ArrowLeft className="mr-2 h-4 w-4" />
-            </Link>
-          </Button>
-        </Card>
-      </section>
-    </AppShell>
+        )}
+      </Card>
+    </section>
   );
 }
 
-function MiniList({ title, items }: { title: string; items: string[] }) {
+function FixtureDialog({
+  projectId,
+  fixture,
+}: {
+  projectId: string;
+  fixture?: PlumbingFixture;
+}) {
+  const qc = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({
+    space_name: fixture?.space_name ?? "",
+    fixture_type: fixture?.fixture_type ?? "",
+    quantity: fixture?.quantity ?? 1,
+    cold_water: fixture?.cold_water ?? true,
+    hot_water: fixture?.hot_water ?? false,
+    drain_required: fixture?.drain_required ?? true,
+    drain_diameter_mm: fixture?.drain_diameter_mm ?? 50,
+    water_fixture_units: fixture?.water_fixture_units ?? 1,
+    drainage_fixture_units: fixture?.drainage_fixture_units ?? 1,
+    notes: fixture?.notes ?? "",
+  });
+
+  const isEdit = Boolean(fixture);
+
+  const mutation = useMutation({
+    mutationFn: () => {
+      const payload = {
+        project_id: projectId,
+        evidence_id: fixture?.evidence_id ?? null,
+        space_name: form.space_name.trim(),
+        fixture_type: form.fixture_type.trim(),
+        quantity: Number(form.quantity) || 1,
+        cold_water: form.cold_water,
+        hot_water: form.hot_water,
+        drain_required: form.drain_required,
+        drain_diameter_mm: form.drain_required
+          ? Number(form.drain_diameter_mm) || null
+          : null,
+        water_fixture_units: Number(form.water_fixture_units) || null,
+        drainage_fixture_units: Number(form.drainage_fixture_units) || null,
+        notes: form.notes || null,
+      };
+      return isEdit
+        ? updatePlumbingFixture(fixture!.id, payload)
+        : createPlumbingFixture(payload);
+    },
+    onSuccess: () => {
+      toast.success(isEdit ? "تم التحديث" : "تمت الإضافة");
+      qc.invalidateQueries({ queryKey: ["plumbing-fixtures", projectId] });
+      setOpen(false);
+    },
+    onError: (e: Error) => toast.error("فشل الحفظ", { description: e.message }),
+  });
+
   return (
-    <div className="mt-4">
-      <div className="mb-2 text-xs font-black text-muted-foreground">{title}</div>
-      <div className="flex flex-wrap gap-1.5">
-        {items.map((item) => (
-          <Badge key={item} variant="secondary" className="rounded-md text-[10px]">
-            {item}
-          </Badge>
-        ))}
-      </div>
-    </div>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        {isEdit ? (
+          <Button variant="ghost" size="icon">
+            <Pencil className="h-4 w-4" />
+          </Button>
+        ) : (
+          <Button>
+            <Plus className="ms-1 h-4 w-4" /> إضافة Fixture
+          </Button>
+        )}
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>{isEdit ? "تعديل Fixture" : "إضافة Fixture"}</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label>الفراغ</Label>
+            <Input
+              value={form.space_name}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, space_name: e.target.value }))
+              }
+              placeholder="WC, Pantry, Service..."
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label>نوع الجهاز</Label>
+            <Input
+              value={form.fixture_type}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, fixture_type: e.target.value }))
+              }
+              placeholder="Water Closet, Wash Basin..."
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label>الكمية</Label>
+            <Input
+              type="number"
+              min={1}
+              value={form.quantity}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, quantity: Number(e.target.value) }))
+              }
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label>قطر الصرف (مم)</Label>
+            <Input
+              type="number"
+              min={0}
+              value={form.drain_diameter_mm}
+              onChange={(e) =>
+                setForm((f) => ({
+                  ...f,
+                  drain_diameter_mm: Number(e.target.value),
+                }))
+              }
+              disabled={!form.drain_required}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Water Fixture Units</Label>
+            <Input
+              type="number"
+              step="0.1"
+              value={form.water_fixture_units}
+              onChange={(e) =>
+                setForm((f) => ({
+                  ...f,
+                  water_fixture_units: Number(e.target.value),
+                }))
+              }
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Drainage Fixture Units</Label>
+            <Input
+              type="number"
+              step="0.1"
+              value={form.drainage_fixture_units}
+              onChange={(e) =>
+                setForm((f) => ({
+                  ...f,
+                  drainage_fixture_units: Number(e.target.value),
+                }))
+              }
+            />
+          </div>
+          <div className="flex items-center justify-between rounded-xl border border-border p-3">
+            <Label>ماء بارد</Label>
+            <Switch
+              checked={form.cold_water}
+              onCheckedChange={(v) => setForm((f) => ({ ...f, cold_water: v }))}
+            />
+          </div>
+          <div className="flex items-center justify-between rounded-xl border border-border p-3">
+            <Label>ماء ساخن</Label>
+            <Switch
+              checked={form.hot_water}
+              onCheckedChange={(v) => setForm((f) => ({ ...f, hot_water: v }))}
+            />
+          </div>
+          <div className="flex items-center justify-between rounded-xl border border-border p-3 md:col-span-2">
+            <Label>يحتاج صرف</Label>
+            <Switch
+              checked={form.drain_required}
+              onCheckedChange={(v) =>
+                setForm((f) => ({ ...f, drain_required: v }))
+              }
+            />
+          </div>
+          <div className="space-y-1.5 md:col-span-2">
+            <Label>ملاحظات</Label>
+            <Textarea
+              rows={2}
+              value={form.notes}
+              onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            إلغاء
+          </Button>
+          <Button
+            disabled={
+              !form.space_name.trim() ||
+              !form.fixture_type.trim() ||
+              mutation.isPending
+            }
+            onClick={() => mutation.mutate()}
+          >
+            {mutation.isPending && <Loader2 className="ms-2 h-4 w-4 animate-spin" />}
+            حفظ
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ----- Checks -----
+
+function ChecksSection({ projectId }: { projectId: string }) {
+  const checksQuery = useQuery({
+    queryKey: ["plumbing-checks", projectId],
+    queryFn: () => fetchPlumbingChecks(projectId),
+  });
+
+  return (
+    <section className="mt-4">
+      <Card className="p-5">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h3 className="font-bold">Plumbing Checks</h3>
+            <p className="text-xs text-muted-foreground">
+              تخزين منظم لحسابات السباكة (input / result) لربطها لاحقًا بمنطق الحساب الكامل
+            </p>
+          </div>
+          <CheckDialog projectId={projectId} />
+        </div>
+
+        {checksQuery.isLoading && (
+          <div className="flex items-center justify-center py-8 text-muted-foreground">
+            <Loader2 className="ms-2 h-4 w-4 animate-spin" /> جاري التحميل...
+          </div>
+        )}
+        {checksQuery.data && checksQuery.data.length === 0 && (
+          <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-muted/20 p-10 text-center text-muted-foreground">
+            <Inbox className="h-8 w-8" />
+            <div className="font-bold">لا توجد فحوصات بعد</div>
+          </div>
+        )}
+        {checksQuery.data && checksQuery.data.length > 0 && (
+          <div className="overflow-x-auto rounded-xl border border-border">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50 text-xs text-muted-foreground">
+                <tr>
+                  <th className="p-3 text-right">النوع</th>
+                  <th className="p-3 text-right">الحالة</th>
+                  <th className="p-3 text-right">ملاحظات</th>
+                  <th className="p-3 text-right">التاريخ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {checksQuery.data.map((c: PlumbingCheck) => {
+                  const s = checkStatusMeta[c.status];
+                  return (
+                    <tr key={c.id} className="border-t border-border">
+                      <td className="p-3 font-semibold">
+                        {checkTypeLabels[c.check_type]}
+                      </td>
+                      <td className="p-3">
+                        <Badge variant="outline" className={s.className}>
+                          {s.label}
+                        </Badge>
+                      </td>
+                      <td className="p-3 text-muted-foreground">{c.notes ?? "—"}</td>
+                      <td className="p-3 text-muted-foreground">
+                        {new Date(c.created_at).toLocaleDateString("ar-EG")}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
+    </section>
+  );
+}
+
+function CheckDialog({ projectId }: { projectId: string }) {
+  const qc = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({
+    check_type: "water_demand" as CheckType,
+    status: "draft" as CheckStatus,
+    notes: "",
+    input_json: "{}",
+    result_json: "{}",
+  });
+
+  const mutation = useMutation({
+    mutationFn: () => {
+      let input: Record<string, unknown> = {};
+      let result: Record<string, unknown> = {};
+      try {
+        input = JSON.parse(form.input_json || "{}");
+        result = JSON.parse(form.result_json || "{}");
+      } catch {
+        throw new Error("JSON غير صالح في input_data أو result_data");
+      }
+      return createPlumbingCheck({
+        project_id: projectId,
+        check_type: form.check_type,
+        status: form.status,
+        notes: form.notes || null,
+        input_data: input,
+        result_data: result,
+      });
+    },
+    onSuccess: () => {
+      toast.success("تم إنشاء الفحص");
+      qc.invalidateQueries({ queryKey: ["plumbing-checks", projectId] });
+      setOpen(false);
+    },
+    onError: (e: Error) => toast.error("فشل الحفظ", { description: e.message }),
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline">
+          <Plus className="ms-1 h-4 w-4" /> إنشاء Check
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>إنشاء Plumbing Check</DialogTitle>
+          <DialogDescription>
+            يتم تخزين input/result كـ JSON. المنطق الهندسي سيتم ربطه لاحقًا.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label>نوع الفحص</Label>
+            <Select
+              value={form.check_type}
+              onValueChange={(v) =>
+                setForm((f) => ({ ...f, check_type: v as CheckType }))
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.keys(checkTypeLabels) as CheckType[]).map((k) => (
+                  <SelectItem key={k} value={k}>
+                    {checkTypeLabels[k]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>الحالة</Label>
+            <Select
+              value={form.status}
+              onValueChange={(v) =>
+                setForm((f) => ({ ...f, status: v as CheckStatus }))
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.keys(checkStatusMeta) as CheckStatus[]).map((k) => (
+                  <SelectItem key={k} value={k}>
+                    {checkStatusMeta[k].label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5 md:col-span-2">
+            <Label>Input Data (JSON)</Label>
+            <Textarea
+              rows={4}
+              value={form.input_json}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, input_json: e.target.value }))
+              }
+              className="font-mono text-xs"
+            />
+          </div>
+          <div className="space-y-1.5 md:col-span-2">
+            <Label>Result Data (JSON)</Label>
+            <Textarea
+              rows={4}
+              value={form.result_json}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, result_json: e.target.value }))
+              }
+              className="font-mono text-xs"
+            />
+          </div>
+          <div className="space-y-1.5 md:col-span-2">
+            <Label>ملاحظات</Label>
+            <Textarea
+              rows={2}
+              value={form.notes}
+              onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            إلغاء
+          </Button>
+          <Button
+            disabled={mutation.isPending}
+            onClick={() => mutation.mutate()}
+          >
+            {mutation.isPending && <Loader2 className="ms-2 h-4 w-4 animate-spin" />}
+            حفظ
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function CreatePlumbingEvidenceButton({ projectId }: { projectId: string }) {
+  const qc = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: () =>
+      createTechnicalEvidence({
+        project_id: projectId,
+        discipline: "plumbing",
+        evidence_type: "plumbing_report",
+        title: `Plumbing Evidence — ${new Date().toLocaleDateString("ar-EG")}`,
+        source_software: "Custom Plumbing System",
+        report_version: "v1.0",
+        status: "draft",
+      }),
+    onSuccess: () => {
+      toast.success("تم إنشاء سجل Plumbing Evidence");
+      qc.invalidateQueries({ queryKey: ["technical-evidence"] });
+    },
+    onError: (e: Error) => toast.error("فشل الإنشاء", { description: e.message }),
+  });
+  return (
+    <Button
+      variant="outline"
+      onClick={() => mutation.mutate()}
+      disabled={mutation.isPending}
+    >
+      {mutation.isPending ? (
+        <Loader2 className="ms-1 h-4 w-4 animate-spin" />
+      ) : (
+        <FileCheck2 className="ms-1 h-4 w-4" />
+      )}
+      Create Plumbing Evidence
+    </Button>
   );
 }
