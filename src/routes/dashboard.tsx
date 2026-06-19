@@ -68,12 +68,8 @@ const commandFlow = [
   { label: "Decision", description: "اعتماد، رفض، تعليق، أو تصعيد", status: "قادم" },
 ];
 
-const evidenceReadiness = [
-  { label: "HVAC", value: 82, note: "HAP / Load reports" },
-  { label: "Lighting", value: 76, note: "DIALux / Lux evidence" },
-  { label: "Plumbing", value: 38, note: "Water and drainage layer" },
-  { label: "As-Built", value: 54, note: "Final drawings and records" },
-];
+// evidence readiness is computed from live data inside the component
+
 
 const botActions = [
   { title: "متابعة حالة مشروع", to: "/projects", icon: FolderKanban },
