@@ -42,6 +42,9 @@ import {
   projects,
   statusMeta,
 } from "@/lib/mock-data";
+import { useQuery } from "@tanstack/react-query";
+import { fetchTechnicalEvidence } from "@/lib/technical-evidence-api";
+
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "مركز تحكم BIM — Alazab BIM" }] }),
