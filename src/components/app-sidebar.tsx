@@ -239,6 +239,7 @@ export function AppSidebar() {
             <DropdownMenuItem asChild><Link to="/profile"><UserCircle2 className="ml-2 h-4 w-4" />الملف الشخصي</Link></DropdownMenuItem>
             <DropdownMenuItem asChild><Link to="/settings"><Settings className="ml-2 h-4 w-4" />الإعدادات</Link></DropdownMenuItem>
             <DropdownMenuItem asChild><Link to="/help"><LifeBuoy className="ml-2 h-4 w-4" />المساعدة والدعم</Link></DropdownMenuItem>
+            <DropdownMenuItem asChild><Link to="/trust"><Shield className="ml-2 h-4 w-4" />الثقة والخصوصية</Link></DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
               <LogOut className="ml-2 h-4 w-4" />تسجيل الخروج
