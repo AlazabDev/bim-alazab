@@ -37,13 +37,14 @@ export function AzaBot() {
       toast.error("حدث خطأ في الاتصال بالمساعد");
     },
     onMessage: (message: { source?: "user" | "ai"; message?: string }) => {
-      if (!message?.message) return;
+      const text = message?.message;
+      if (!text) return;
       setMessages((prev) => [
         ...prev,
         {
           id: crypto.randomUUID(),
           role: message.source === "user" ? "user" : "agent",
-          text: message.message,
+          text,
         },
       ]);
     },
