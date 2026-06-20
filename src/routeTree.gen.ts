@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TrustRouteImport } from './routes/trust'
 import { Route as TechnicalEvidenceRouteImport } from './routes/technical-evidence'
 import { Route as SubmittalsRouteImport } from './routes/submittals'
 import { Route as SettingsRouteImport } from './routes/settings'
@@ -34,6 +35,11 @@ import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
 import { Route as ProjectsNewRouteImport } from './routes/projects.new'
 import { Route as ProjectsIdRouteImport } from './routes/projects.$id'
 
+const TrustRoute = TrustRouteImport.update({
+  id: '/trust',
+  path: '/trust',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TechnicalEvidenceRoute = TechnicalEvidenceRouteImport.update({
   id: '/technical-evidence',
   path: '/technical-evidence',
@@ -177,6 +183,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/submittals': typeof SubmittalsRoute
   '/technical-evidence': typeof TechnicalEvidenceRoute
+  '/trust': typeof TrustRoute
   '/projects/$id': typeof ProjectsIdRoute
   '/projects/new': typeof ProjectsNewRoute
   '/projects/': typeof ProjectsIndexRoute
@@ -202,6 +209,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/submittals': typeof SubmittalsRoute
   '/technical-evidence': typeof TechnicalEvidenceRoute
+  '/trust': typeof TrustRoute
   '/projects/$id': typeof ProjectsIdRoute
   '/projects/new': typeof ProjectsNewRoute
   '/projects': typeof ProjectsIndexRoute
@@ -229,6 +237,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/submittals': typeof SubmittalsRoute
   '/technical-evidence': typeof TechnicalEvidenceRoute
+  '/trust': typeof TrustRoute
   '/projects/$id': typeof ProjectsIdRoute
   '/projects/new': typeof ProjectsNewRoute
   '/projects/': typeof ProjectsIndexRoute
@@ -257,6 +266,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/submittals'
     | '/technical-evidence'
+    | '/trust'
     | '/projects/$id'
     | '/projects/new'
     | '/projects/'
@@ -282,6 +292,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/submittals'
     | '/technical-evidence'
+    | '/trust'
     | '/projects/$id'
     | '/projects/new'
     | '/projects'
@@ -308,6 +319,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/submittals'
     | '/technical-evidence'
+    | '/trust'
     | '/projects/$id'
     | '/projects/new'
     | '/projects/'
@@ -335,10 +347,18 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   SubmittalsRoute: typeof SubmittalsRoute
   TechnicalEvidenceRoute: typeof TechnicalEvidenceRoute
+  TrustRoute: typeof TrustRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/trust': {
+      id: '/trust'
+      path: '/trust'
+      fullPath: '/trust'
+      preLoaderRoute: typeof TrustRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/technical-evidence': {
       id: '/technical-evidence'
       path: '/technical-evidence'
@@ -548,6 +568,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   SubmittalsRoute: SubmittalsRoute,
   TechnicalEvidenceRoute: TechnicalEvidenceRoute,
+  TrustRoute: TrustRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
