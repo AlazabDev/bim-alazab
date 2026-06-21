@@ -90,7 +90,7 @@ function ProjectDetail() {
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="overview" className="mt-6">
+      <Tabs defaultValue={tab ?? "overview"} key={tab ?? "overview"} className="mt-6">
         <TabsList className="w-full overflow-x-auto md:w-auto">
           <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
           <TabsTrigger value="files">الملفات</TabsTrigger>
