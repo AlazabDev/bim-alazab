@@ -32,8 +32,18 @@ import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as ActivityRouteImport } from './routes/activity'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
+import { Route as SubmittalsIdRouteImport } from './routes/submittals.$id'
+import { Route as RfisIdRouteImport } from './routes/rfis.$id'
 import { Route as ProjectsNewRouteImport } from './routes/projects.new'
 import { Route as ProjectsIdRouteImport } from './routes/projects.$id'
+import { Route as MembersIdRouteImport } from './routes/members.$id'
+import { Route as IssuesIdRouteImport } from './routes/issues.$id'
+import { Route as FilesIdRouteImport } from './routes/files.$id'
+import { Route as ApprovalsIdRouteImport } from './routes/approvals.$id'
+import { Route as ProjectsIdTeamRouteImport } from './routes/projects.$id.team'
+import { Route as ProjectsIdModelsRouteImport } from './routes/projects.$id.models'
+import { Route as ProjectsIdIssuesRouteImport } from './routes/projects.$id.issues'
+import { Route as ProjectsIdFilesRouteImport } from './routes/projects.$id.files'
 
 const TrustRoute = TrustRouteImport.update({
   id: '/trust',
@@ -150,6 +160,16 @@ const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ProjectsRoute,
 } as any)
+const SubmittalsIdRoute = SubmittalsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => SubmittalsRoute,
+} as any)
+const RfisIdRoute = RfisIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => RfisRoute,
+} as any)
 const ProjectsNewRoute = ProjectsNewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -160,87 +180,157 @@ const ProjectsIdRoute = ProjectsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ProjectsRoute,
 } as any)
+const MembersIdRoute = MembersIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => MembersRoute,
+} as any)
+const IssuesIdRoute = IssuesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => IssuesRoute,
+} as any)
+const FilesIdRoute = FilesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => FilesRoute,
+} as any)
+const ApprovalsIdRoute = ApprovalsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApprovalsRoute,
+} as any)
+const ProjectsIdTeamRoute = ProjectsIdTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => ProjectsIdRoute,
+} as any)
+const ProjectsIdModelsRoute = ProjectsIdModelsRouteImport.update({
+  id: '/models',
+  path: '/models',
+  getParentRoute: () => ProjectsIdRoute,
+} as any)
+const ProjectsIdIssuesRoute = ProjectsIdIssuesRouteImport.update({
+  id: '/issues',
+  path: '/issues',
+  getParentRoute: () => ProjectsIdRoute,
+} as any)
+const ProjectsIdFilesRoute = ProjectsIdFilesRouteImport.update({
+  id: '/files',
+  path: '/files',
+  getParentRoute: () => ProjectsIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/analytics': typeof AnalyticsRoute
-  '/approvals': typeof ApprovalsRoute
+  '/approvals': typeof ApprovalsRouteWithChildren
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/field-analysis': typeof FieldAnalysisRoute
-  '/files': typeof FilesRoute
+  '/files': typeof FilesRouteWithChildren
   '/help': typeof HelpRoute
-  '/issues': typeof IssuesRoute
+  '/issues': typeof IssuesRouteWithChildren
   '/login': typeof LoginRoute
-  '/members': typeof MembersRoute
+  '/members': typeof MembersRouteWithChildren
   '/notifications': typeof NotificationsRoute
   '/plumbing-system': typeof PlumbingSystemRoute
   '/profile': typeof ProfileRoute
   '/projects': typeof ProjectsRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
-  '/rfis': typeof RfisRoute
+  '/rfis': typeof RfisRouteWithChildren
   '/settings': typeof SettingsRoute
-  '/submittals': typeof SubmittalsRoute
+  '/submittals': typeof SubmittalsRouteWithChildren
   '/technical-evidence': typeof TechnicalEvidenceRoute
   '/trust': typeof TrustRoute
-  '/projects/$id': typeof ProjectsIdRoute
+  '/approvals/$id': typeof ApprovalsIdRoute
+  '/files/$id': typeof FilesIdRoute
+  '/issues/$id': typeof IssuesIdRoute
+  '/members/$id': typeof MembersIdRoute
+  '/projects/$id': typeof ProjectsIdRouteWithChildren
   '/projects/new': typeof ProjectsNewRoute
+  '/rfis/$id': typeof RfisIdRoute
+  '/submittals/$id': typeof SubmittalsIdRoute
   '/projects/': typeof ProjectsIndexRoute
+  '/projects/$id/files': typeof ProjectsIdFilesRoute
+  '/projects/$id/issues': typeof ProjectsIdIssuesRoute
+  '/projects/$id/models': typeof ProjectsIdModelsRoute
+  '/projects/$id/team': typeof ProjectsIdTeamRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/analytics': typeof AnalyticsRoute
-  '/approvals': typeof ApprovalsRoute
+  '/approvals': typeof ApprovalsRouteWithChildren
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/field-analysis': typeof FieldAnalysisRoute
-  '/files': typeof FilesRoute
+  '/files': typeof FilesRouteWithChildren
   '/help': typeof HelpRoute
-  '/issues': typeof IssuesRoute
+  '/issues': typeof IssuesRouteWithChildren
   '/login': typeof LoginRoute
-  '/members': typeof MembersRoute
+  '/members': typeof MembersRouteWithChildren
   '/notifications': typeof NotificationsRoute
   '/plumbing-system': typeof PlumbingSystemRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/rfis': typeof RfisRoute
+  '/rfis': typeof RfisRouteWithChildren
   '/settings': typeof SettingsRoute
-  '/submittals': typeof SubmittalsRoute
+  '/submittals': typeof SubmittalsRouteWithChildren
   '/technical-evidence': typeof TechnicalEvidenceRoute
   '/trust': typeof TrustRoute
-  '/projects/$id': typeof ProjectsIdRoute
+  '/approvals/$id': typeof ApprovalsIdRoute
+  '/files/$id': typeof FilesIdRoute
+  '/issues/$id': typeof IssuesIdRoute
+  '/members/$id': typeof MembersIdRoute
+  '/projects/$id': typeof ProjectsIdRouteWithChildren
   '/projects/new': typeof ProjectsNewRoute
+  '/rfis/$id': typeof RfisIdRoute
+  '/submittals/$id': typeof SubmittalsIdRoute
   '/projects': typeof ProjectsIndexRoute
+  '/projects/$id/files': typeof ProjectsIdFilesRoute
+  '/projects/$id/issues': typeof ProjectsIdIssuesRoute
+  '/projects/$id/models': typeof ProjectsIdModelsRoute
+  '/projects/$id/team': typeof ProjectsIdTeamRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/analytics': typeof AnalyticsRoute
-  '/approvals': typeof ApprovalsRoute
+  '/approvals': typeof ApprovalsRouteWithChildren
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/field-analysis': typeof FieldAnalysisRoute
-  '/files': typeof FilesRoute
+  '/files': typeof FilesRouteWithChildren
   '/help': typeof HelpRoute
-  '/issues': typeof IssuesRoute
+  '/issues': typeof IssuesRouteWithChildren
   '/login': typeof LoginRoute
-  '/members': typeof MembersRoute
+  '/members': typeof MembersRouteWithChildren
   '/notifications': typeof NotificationsRoute
   '/plumbing-system': typeof PlumbingSystemRoute
   '/profile': typeof ProfileRoute
   '/projects': typeof ProjectsRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
-  '/rfis': typeof RfisRoute
+  '/rfis': typeof RfisRouteWithChildren
   '/settings': typeof SettingsRoute
-  '/submittals': typeof SubmittalsRoute
+  '/submittals': typeof SubmittalsRouteWithChildren
   '/technical-evidence': typeof TechnicalEvidenceRoute
   '/trust': typeof TrustRoute
-  '/projects/$id': typeof ProjectsIdRoute
+  '/approvals/$id': typeof ApprovalsIdRoute
+  '/files/$id': typeof FilesIdRoute
+  '/issues/$id': typeof IssuesIdRoute
+  '/members/$id': typeof MembersIdRoute
+  '/projects/$id': typeof ProjectsIdRouteWithChildren
   '/projects/new': typeof ProjectsNewRoute
+  '/rfis/$id': typeof RfisIdRoute
+  '/submittals/$id': typeof SubmittalsIdRoute
   '/projects/': typeof ProjectsIndexRoute
+  '/projects/$id/files': typeof ProjectsIdFilesRoute
+  '/projects/$id/issues': typeof ProjectsIdIssuesRoute
+  '/projects/$id/models': typeof ProjectsIdModelsRoute
+  '/projects/$id/team': typeof ProjectsIdTeamRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -267,9 +357,19 @@ export interface FileRouteTypes {
     | '/submittals'
     | '/technical-evidence'
     | '/trust'
+    | '/approvals/$id'
+    | '/files/$id'
+    | '/issues/$id'
+    | '/members/$id'
     | '/projects/$id'
     | '/projects/new'
+    | '/rfis/$id'
+    | '/submittals/$id'
     | '/projects/'
+    | '/projects/$id/files'
+    | '/projects/$id/issues'
+    | '/projects/$id/models'
+    | '/projects/$id/team'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -293,9 +393,19 @@ export interface FileRouteTypes {
     | '/submittals'
     | '/technical-evidence'
     | '/trust'
+    | '/approvals/$id'
+    | '/files/$id'
+    | '/issues/$id'
+    | '/members/$id'
     | '/projects/$id'
     | '/projects/new'
+    | '/rfis/$id'
+    | '/submittals/$id'
     | '/projects'
+    | '/projects/$id/files'
+    | '/projects/$id/issues'
+    | '/projects/$id/models'
+    | '/projects/$id/team'
   id:
     | '__root__'
     | '/'
@@ -320,32 +430,42 @@ export interface FileRouteTypes {
     | '/submittals'
     | '/technical-evidence'
     | '/trust'
+    | '/approvals/$id'
+    | '/files/$id'
+    | '/issues/$id'
+    | '/members/$id'
     | '/projects/$id'
     | '/projects/new'
+    | '/rfis/$id'
+    | '/submittals/$id'
     | '/projects/'
+    | '/projects/$id/files'
+    | '/projects/$id/issues'
+    | '/projects/$id/models'
+    | '/projects/$id/team'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActivityRoute: typeof ActivityRoute
   AnalyticsRoute: typeof AnalyticsRoute
-  ApprovalsRoute: typeof ApprovalsRoute
+  ApprovalsRoute: typeof ApprovalsRouteWithChildren
   AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRoute
   FieldAnalysisRoute: typeof FieldAnalysisRoute
-  FilesRoute: typeof FilesRoute
+  FilesRoute: typeof FilesRouteWithChildren
   HelpRoute: typeof HelpRoute
-  IssuesRoute: typeof IssuesRoute
+  IssuesRoute: typeof IssuesRouteWithChildren
   LoginRoute: typeof LoginRoute
-  MembersRoute: typeof MembersRoute
+  MembersRoute: typeof MembersRouteWithChildren
   NotificationsRoute: typeof NotificationsRoute
   PlumbingSystemRoute: typeof PlumbingSystemRoute
   ProfileRoute: typeof ProfileRoute
   ProjectsRoute: typeof ProjectsRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
-  RfisRoute: typeof RfisRoute
+  RfisRoute: typeof RfisRouteWithChildren
   SettingsRoute: typeof SettingsRoute
-  SubmittalsRoute: typeof SubmittalsRoute
+  SubmittalsRoute: typeof SubmittalsRouteWithChildren
   TechnicalEvidenceRoute: typeof TechnicalEvidenceRoute
   TrustRoute: typeof TrustRoute
 }
@@ -513,6 +633,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsIndexRouteImport
       parentRoute: typeof ProjectsRoute
     }
+    '/submittals/$id': {
+      id: '/submittals/$id'
+      path: '/$id'
+      fullPath: '/submittals/$id'
+      preLoaderRoute: typeof SubmittalsIdRouteImport
+      parentRoute: typeof SubmittalsRoute
+    }
+    '/rfis/$id': {
+      id: '/rfis/$id'
+      path: '/$id'
+      fullPath: '/rfis/$id'
+      preLoaderRoute: typeof RfisIdRouteImport
+      parentRoute: typeof RfisRoute
+    }
     '/projects/new': {
       id: '/projects/new'
       path: '/new'
@@ -527,17 +661,135 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsIdRouteImport
       parentRoute: typeof ProjectsRoute
     }
+    '/members/$id': {
+      id: '/members/$id'
+      path: '/$id'
+      fullPath: '/members/$id'
+      preLoaderRoute: typeof MembersIdRouteImport
+      parentRoute: typeof MembersRoute
+    }
+    '/issues/$id': {
+      id: '/issues/$id'
+      path: '/$id'
+      fullPath: '/issues/$id'
+      preLoaderRoute: typeof IssuesIdRouteImport
+      parentRoute: typeof IssuesRoute
+    }
+    '/files/$id': {
+      id: '/files/$id'
+      path: '/$id'
+      fullPath: '/files/$id'
+      preLoaderRoute: typeof FilesIdRouteImport
+      parentRoute: typeof FilesRoute
+    }
+    '/approvals/$id': {
+      id: '/approvals/$id'
+      path: '/$id'
+      fullPath: '/approvals/$id'
+      preLoaderRoute: typeof ApprovalsIdRouteImport
+      parentRoute: typeof ApprovalsRoute
+    }
+    '/projects/$id/team': {
+      id: '/projects/$id/team'
+      path: '/team'
+      fullPath: '/projects/$id/team'
+      preLoaderRoute: typeof ProjectsIdTeamRouteImport
+      parentRoute: typeof ProjectsIdRoute
+    }
+    '/projects/$id/models': {
+      id: '/projects/$id/models'
+      path: '/models'
+      fullPath: '/projects/$id/models'
+      preLoaderRoute: typeof ProjectsIdModelsRouteImport
+      parentRoute: typeof ProjectsIdRoute
+    }
+    '/projects/$id/issues': {
+      id: '/projects/$id/issues'
+      path: '/issues'
+      fullPath: '/projects/$id/issues'
+      preLoaderRoute: typeof ProjectsIdIssuesRouteImport
+      parentRoute: typeof ProjectsIdRoute
+    }
+    '/projects/$id/files': {
+      id: '/projects/$id/files'
+      path: '/files'
+      fullPath: '/projects/$id/files'
+      preLoaderRoute: typeof ProjectsIdFilesRouteImport
+      parentRoute: typeof ProjectsIdRoute
+    }
   }
 }
 
+interface ApprovalsRouteChildren {
+  ApprovalsIdRoute: typeof ApprovalsIdRoute
+}
+
+const ApprovalsRouteChildren: ApprovalsRouteChildren = {
+  ApprovalsIdRoute: ApprovalsIdRoute,
+}
+
+const ApprovalsRouteWithChildren = ApprovalsRoute._addFileChildren(
+  ApprovalsRouteChildren,
+)
+
+interface FilesRouteChildren {
+  FilesIdRoute: typeof FilesIdRoute
+}
+
+const FilesRouteChildren: FilesRouteChildren = {
+  FilesIdRoute: FilesIdRoute,
+}
+
+const FilesRouteWithChildren = FilesRoute._addFileChildren(FilesRouteChildren)
+
+interface IssuesRouteChildren {
+  IssuesIdRoute: typeof IssuesIdRoute
+}
+
+const IssuesRouteChildren: IssuesRouteChildren = {
+  IssuesIdRoute: IssuesIdRoute,
+}
+
+const IssuesRouteWithChildren =
+  IssuesRoute._addFileChildren(IssuesRouteChildren)
+
+interface MembersRouteChildren {
+  MembersIdRoute: typeof MembersIdRoute
+}
+
+const MembersRouteChildren: MembersRouteChildren = {
+  MembersIdRoute: MembersIdRoute,
+}
+
+const MembersRouteWithChildren =
+  MembersRoute._addFileChildren(MembersRouteChildren)
+
+interface ProjectsIdRouteChildren {
+  ProjectsIdFilesRoute: typeof ProjectsIdFilesRoute
+  ProjectsIdIssuesRoute: typeof ProjectsIdIssuesRoute
+  ProjectsIdModelsRoute: typeof ProjectsIdModelsRoute
+  ProjectsIdTeamRoute: typeof ProjectsIdTeamRoute
+}
+
+const ProjectsIdRouteChildren: ProjectsIdRouteChildren = {
+  ProjectsIdFilesRoute: ProjectsIdFilesRoute,
+  ProjectsIdIssuesRoute: ProjectsIdIssuesRoute,
+  ProjectsIdModelsRoute: ProjectsIdModelsRoute,
+  ProjectsIdTeamRoute: ProjectsIdTeamRoute,
+}
+
+const ProjectsIdRouteWithChildren = ProjectsIdRoute._addFileChildren(
+  ProjectsIdRouteChildren,
+)
+
 interface ProjectsRouteChildren {
-  ProjectsIdRoute: typeof ProjectsIdRoute
+  ProjectsIdRoute: typeof ProjectsIdRouteWithChildren
   ProjectsNewRoute: typeof ProjectsNewRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
 }
 
 const ProjectsRouteChildren: ProjectsRouteChildren = {
-  ProjectsIdRoute: ProjectsIdRoute,
+  ProjectsIdRoute: ProjectsIdRouteWithChildren,
   ProjectsNewRoute: ProjectsNewRoute,
   ProjectsIndexRoute: ProjectsIndexRoute,
 }
@@ -546,40 +798,52 @@ const ProjectsRouteWithChildren = ProjectsRoute._addFileChildren(
   ProjectsRouteChildren,
 )
 
+interface RfisRouteChildren {
+  RfisIdRoute: typeof RfisIdRoute
+}
+
+const RfisRouteChildren: RfisRouteChildren = {
+  RfisIdRoute: RfisIdRoute,
+}
+
+const RfisRouteWithChildren = RfisRoute._addFileChildren(RfisRouteChildren)
+
+interface SubmittalsRouteChildren {
+  SubmittalsIdRoute: typeof SubmittalsIdRoute
+}
+
+const SubmittalsRouteChildren: SubmittalsRouteChildren = {
+  SubmittalsIdRoute: SubmittalsIdRoute,
+}
+
+const SubmittalsRouteWithChildren = SubmittalsRoute._addFileChildren(
+  SubmittalsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActivityRoute: ActivityRoute,
   AnalyticsRoute: AnalyticsRoute,
-  ApprovalsRoute: ApprovalsRoute,
+  ApprovalsRoute: ApprovalsRouteWithChildren,
   AuthRoute: AuthRoute,
   DashboardRoute: DashboardRoute,
   FieldAnalysisRoute: FieldAnalysisRoute,
-  FilesRoute: FilesRoute,
+  FilesRoute: FilesRouteWithChildren,
   HelpRoute: HelpRoute,
-  IssuesRoute: IssuesRoute,
+  IssuesRoute: IssuesRouteWithChildren,
   LoginRoute: LoginRoute,
-  MembersRoute: MembersRoute,
+  MembersRoute: MembersRouteWithChildren,
   NotificationsRoute: NotificationsRoute,
   PlumbingSystemRoute: PlumbingSystemRoute,
   ProfileRoute: ProfileRoute,
   ProjectsRoute: ProjectsRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
-  RfisRoute: RfisRoute,
+  RfisRoute: RfisRouteWithChildren,
   SettingsRoute: SettingsRoute,
-  SubmittalsRoute: SubmittalsRoute,
+  SubmittalsRoute: SubmittalsRouteWithChildren,
   TechnicalEvidenceRoute: TechnicalEvidenceRoute,
   TrustRoute: TrustRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

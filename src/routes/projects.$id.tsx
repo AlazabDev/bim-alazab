@@ -21,7 +21,14 @@ import { projects, statusMeta, files, fileCategoryLabel, approvals, activity, fi
 
 const DEFAULT_3D_URL = "https://3d.magicplan.app/#embed/?key=MDI4ZTk1Yzk3ZDVmYTYyMTkwNGJhMTJmNzg2YjM5YWIxNDVlN2FkNTcyMzU0ZTdkYjI0YjYzZjNiNThiOWRkMIG9JC7tWsAig6Nons7D%2FwHBaINGyYSbge4IITM%2BKWqPDmEQDLoeKEL6qllGbr7NOSd%2BRxCa5cRbzS%2FqL4X3IGOH05TzlsAtYXmtLHeim64g";
 
+const VALID_TABS = ["overview", "files", "versions", "approvals", "ai", "3d", "issues", "team", "activity"] as const;
+type TabKey = (typeof VALID_TABS)[number];
+
 export const Route = createFileRoute("/projects/$id")({
+  validateSearch: (search: Record<string, unknown>): { tab?: TabKey } => {
+    const tab = search.tab as string | undefined;
+    return tab && (VALID_TABS as readonly string[]).includes(tab) ? { tab: tab as TabKey } : {};
+  },
   head: ({ params }) => {
     const p = projects.find((x) => x.id === params.id);
     return { meta: [{ title: `${p?.name ?? "مشروع"} — bim.alazab.com` }] };
@@ -40,6 +47,7 @@ const fileStatusLabel = { draft: "مسودة", in_review: "قيد المراجع
 
 function ProjectDetail() {
   const { id } = Route.useParams();
+  const { tab } = Route.useSearch();
   const p = projects.find((x) => x.id === id) ?? projects[0];
   const meta = statusMeta[p.status];
   return (
@@ -82,7 +90,7 @@ function ProjectDetail() {
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="overview" className="mt-6">
+      <Tabs defaultValue={tab ?? "overview"} key={tab ?? "overview"} className="mt-6">
         <TabsList className="w-full overflow-x-auto md:w-auto">
           <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
           <TabsTrigger value="files">الملفات</TabsTrigger>
