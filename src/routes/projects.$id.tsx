@@ -47,6 +47,7 @@ const fileStatusLabel = { draft: "مسودة", in_review: "قيد المراجع
 
 function ProjectDetail() {
   const { id } = Route.useParams();
+  const { tab } = Route.useSearch();
   const p = projects.find((x) => x.id === id) ?? projects[0];
   const meta = statusMeta[p.status];
   return (
