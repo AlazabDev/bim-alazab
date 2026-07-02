@@ -21,6 +21,14 @@ const QUICK_PROMPTS = [
 ];
 
 export function AzaBot() {
+  return (
+    <ConversationProvider>
+      <AzaBotInner />
+    </ConversationProvider>
+  );
+}
+
+function AzaBotInner() {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<Mode>("text");
   const [input, setInput] = useState("");
