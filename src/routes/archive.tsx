@@ -13,11 +13,10 @@ export const Route = createFileRoute("/archive")({
 
 function ArchivePage() {
   return (
-    <AppShell title="الأرشيف">
+    <AppShell>
       <PageHeader
-        icon={FolderTree}
         title="الأرشيف الموحّد"
-        subtitle="مركز واحد لكل السجلات — الملفات، الاعتمادات، RFI، المعتمدات، القضايا، الأدلة الفنية، وتحليلات الذكاء الاصطناعي. مرتَّب على منهج BIM: المشروع ← المرحلة ← التخصص ← النوع ← الإصدار."
+        description="مركز واحد لكل السجلات — الملفات، الاعتمادات، RFI، المعتمدات، القضايا، الأدلة الفنية، وتحليلات الذكاء الاصطناعي. مرتَّب على منهج BIM: المشروع ← المرحلة ← التخصص ← النوع ← الإصدار."
       />
       <div className="mt-4">
         <ArchiveExplorer />
