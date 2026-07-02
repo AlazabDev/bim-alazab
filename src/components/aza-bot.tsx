@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useConversation } from "@elevenlabs/react";
+import { useConversation, ConversationProvider } from "@elevenlabs/react";
 import { useServerFn } from "@tanstack/react-start";
 import { getElevenLabsToken } from "@/lib/elevenlabs.functions";
 import { Bot, Mic, MessageCircle, Send, X } from "lucide-react";
@@ -21,6 +21,14 @@ const QUICK_PROMPTS = [
 ];
 
 export function AzaBot() {
+  return (
+    <ConversationProvider>
+      <AzaBotInner />
+    </ConversationProvider>
+  );
+}
+
+function AzaBotInner() {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<Mode>("text");
   const [input, setInput] = useState("");
