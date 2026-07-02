@@ -17,7 +17,7 @@ import {
 import {
   LayoutDashboard, FolderKanban, FileStack, ImageIcon, CheckCircle2,
   Users, Bell, Shield, BarChart3, MessageSquare, FileQuestion, FileCheck2,
-  Building2, LogOut, Plus, ChevronsUpDown, Settings, UserCircle2, LifeBuoy, Droplets,
+  Building2, LogOut, Plus, ChevronsUpDown, Settings, UserCircle2, LifeBuoy, Droplets, FolderTree,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
