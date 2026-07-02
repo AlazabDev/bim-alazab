@@ -302,7 +302,7 @@ function ProjectDetail() {
         </TabsContent>
 
         <TabsContent value="archive" className="mt-4">
-          <ArchiveExplorer projectId={id} />
+          <ArchiveExplorer />
         </TabsContent>
       </Tabs>
     </AppShell>
