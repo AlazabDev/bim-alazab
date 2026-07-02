@@ -18,6 +18,7 @@ import {
   Folder, Send, Sparkles, Link2, Maximize2, Trash2, Pencil
 } from "lucide-react";
 import { projects, statusMeta, files, fileCategoryLabel, approvals, activity, fieldImages, issues } from "@/lib/mock-data";
+import { ArchiveExplorer } from "@/components/archive-explorer";
 
 const DEFAULT_3D_URL = "https://3d.magicplan.app/#embed/?key=MDI4ZTk1Yzk3ZDVmYTYyMTkwNGJhMTJmNzg2YjM5YWIxNDVlN2FkNTcyMzU0ZTdkYjI0YjYzZjNiNThiOWRkMIG9JC7tWsAig6Nons7D%2FwHBaINGyYSbge4IITM%2BKWqPDmEQDLoeKEL6qllGbr7NOSd%2BRxCa5cRbzS%2FqL4X3IGOH05TzlsAtYXmtLHeim64g";
 
