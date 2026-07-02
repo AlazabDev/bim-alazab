@@ -120,13 +120,8 @@ export async function fetchArchive(projectId?: string): Promise<ArchiveTree[]> {
 
   const ids = projects.map((p) => p.id);
 
-  const [filesRes, versionsRes, apprRes, issRes, evRes] = await Promise.all([
+  const [filesRes, apprRes, issRes, evRes] = await Promise.all([
     supabase.from("files").select("*").in("project_id", ids),
-    supabase.from("file_versions").select("*").in("file_id",
-      // subquery via IN needs file ids — fetch after; use a separate call
-      // placeholder empty array to keep call parallel; refine after
-      []
-    ),
     supabase.from("approvals").select("id, project_id, step_name, status, updated_at, comment, role_required").in("project_id", ids),
     supabase.from("issues").select("id, code, project_id, title, type, status, priority, updated_at, description").in("project_id", ids),
     supabase.from("technical_evidence").select("id, project_id, title, evidence_type, discipline, status, updated_at, report_version, description").in("project_id", ids),
@@ -139,9 +134,9 @@ export async function fetchArchive(projectId?: string): Promise<ArchiveTree[]> {
 
   const files = filesRes.data ?? [];
   const fileIds = files.map((f) => f.id);
-  let versions: NonNullable<typeof versionsRes.data> = [];
+  let versions: Array<{ id: string; file_id: string; version: string; created_at: string; size_bytes: number | null; notes: string | null; storage_path: string | null }> = [];
   if (fileIds.length) {
-    const { data, error } = await supabase.from("file_versions").select("*").in("file_id", fileIds);
+    const { data, error } = await supabase.from("file_versions").select("id, file_id, version, created_at, size_bytes, notes, storage_path").in("file_id", fileIds);
     if (error) throw error;
     versions = data ?? [];
   }
