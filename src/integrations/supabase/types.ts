@@ -584,6 +584,21 @@ export type Database = {
           },
         ]
       }
+      supcloud_keepalive: {
+        Row: {
+          id: number
+          marker: string
+        }
+        Insert: {
+          id: number
+          marker?: string
+        }
+        Update: {
+          id?: number
+          marker?: string
+        }
+        Relationships: []
+      }
       technical_evidence: {
         Row: {
           approved_by: string | null
