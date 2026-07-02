@@ -17,7 +17,7 @@ import {
 import {
   LayoutDashboard, FolderKanban, FileStack, ImageIcon, CheckCircle2,
   Users, Bell, Shield, BarChart3, MessageSquare, FileQuestion, FileCheck2,
-  Building2, LogOut, Plus, ChevronsUpDown, Settings, UserCircle2, LifeBuoy, Droplets,
+  Building2, LogOut, Plus, ChevronsUpDown, Settings, UserCircle2, LifeBuoy, Droplets, FolderTree,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -51,6 +51,7 @@ const groups: NavGroup[] = [
     items: [
       { to: "/projects", icon: FolderKanban, label: "المشاريع" },
       { to: "/files", icon: FileStack, label: "الملفات والمستندات" },
+      { to: "/archive", icon: FolderTree, label: "الأرشيف الموحّد" },
       { to: "/technical-evidence", icon: FileCheck2, label: "الأدلة الفنية" },
       { to: "/plumbing-system", icon: Droplets, label: "نظام السباكة" },
       { to: "/field-analysis", icon: ImageIcon, label: "التحليل الميداني AI" },

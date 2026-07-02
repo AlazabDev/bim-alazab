@@ -18,10 +18,11 @@ import {
   Folder, Send, Sparkles, Link2, Maximize2, Trash2, Pencil
 } from "lucide-react";
 import { projects, statusMeta, files, fileCategoryLabel, approvals, activity, fieldImages, issues } from "@/lib/mock-data";
+import { ArchiveExplorer } from "@/components/archive-explorer";
 
 const DEFAULT_3D_URL = "https://3d.magicplan.app/#embed/?key=MDI4ZTk1Yzk3ZDVmYTYyMTkwNGJhMTJmNzg2YjM5YWIxNDVlN2FkNTcyMzU0ZTdkYjI0YjYzZjNiNThiOWRkMIG9JC7tWsAig6Nons7D%2FwHBaINGyYSbge4IITM%2BKWqPDmEQDLoeKEL6qllGbr7NOSd%2BRxCa5cRbzS%2FqL4X3IGOH05TzlsAtYXmtLHeim64g";
 
-const VALID_TABS = ["overview", "files", "versions", "approvals", "ai", "3d", "issues", "team", "activity"] as const;
+const VALID_TABS = ["overview", "files", "versions", "approvals", "ai", "3d", "issues", "team", "activity", "archive"] as const;
 type TabKey = (typeof VALID_TABS)[number];
 
 export const Route = createFileRoute("/projects/$id")({
@@ -101,6 +102,7 @@ function ProjectDetail() {
           <TabsTrigger value="issues">القضايا</TabsTrigger>
           <TabsTrigger value="team">الفريق</TabsTrigger>
           <TabsTrigger value="activity">النشاط</TabsTrigger>
+          <TabsTrigger value="archive">الأرشيف</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-4 grid gap-4 lg:grid-cols-3">
@@ -297,6 +299,10 @@ function ProjectDetail() {
               ))}
             </ol>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="archive" className="mt-4">
+          <ArchiveExplorer />
         </TabsContent>
       </Tabs>
     </AppShell>
