@@ -101,6 +101,7 @@ function ProjectDetail() {
           <TabsTrigger value="issues">القضايا</TabsTrigger>
           <TabsTrigger value="team">الفريق</TabsTrigger>
           <TabsTrigger value="activity">النشاط</TabsTrigger>
+          <TabsTrigger value="archive">الأرشيف</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-4 grid gap-4 lg:grid-cols-3">
