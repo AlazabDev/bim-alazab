@@ -27,6 +27,7 @@ import { Route as FilesRouteImport } from './routes/files'
 import { Route as FieldAnalysisRouteImport } from './routes/field-analysis'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ArchiveRouteImport } from './routes/archive'
 import { Route as ApprovalsRouteImport } from './routes/approvals'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as ActivityRouteImport } from './routes/activity'
@@ -135,6 +136,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ArchiveRoute = ArchiveRouteImport.update({
+  id: '/archive',
+  path: '/archive',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApprovalsRoute = ApprovalsRouteImport.update({
   id: '/approvals',
   path: '/approvals',
@@ -226,6 +232,7 @@ export interface FileRoutesByFullPath {
   '/activity': typeof ActivityRoute
   '/analytics': typeof AnalyticsRoute
   '/approvals': typeof ApprovalsRouteWithChildren
+  '/archive': typeof ArchiveRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/field-analysis': typeof FieldAnalysisRoute
@@ -263,6 +270,7 @@ export interface FileRoutesByTo {
   '/activity': typeof ActivityRoute
   '/analytics': typeof AnalyticsRoute
   '/approvals': typeof ApprovalsRouteWithChildren
+  '/archive': typeof ArchiveRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/field-analysis': typeof FieldAnalysisRoute
@@ -300,6 +308,7 @@ export interface FileRoutesById {
   '/activity': typeof ActivityRoute
   '/analytics': typeof AnalyticsRoute
   '/approvals': typeof ApprovalsRouteWithChildren
+  '/archive': typeof ArchiveRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/field-analysis': typeof FieldAnalysisRoute
@@ -339,6 +348,7 @@ export interface FileRouteTypes {
     | '/activity'
     | '/analytics'
     | '/approvals'
+    | '/archive'
     | '/auth'
     | '/dashboard'
     | '/field-analysis'
@@ -376,6 +386,7 @@ export interface FileRouteTypes {
     | '/activity'
     | '/analytics'
     | '/approvals'
+    | '/archive'
     | '/auth'
     | '/dashboard'
     | '/field-analysis'
@@ -412,6 +423,7 @@ export interface FileRouteTypes {
     | '/activity'
     | '/analytics'
     | '/approvals'
+    | '/archive'
     | '/auth'
     | '/dashboard'
     | '/field-analysis'
@@ -450,6 +462,7 @@ export interface RootRouteChildren {
   ActivityRoute: typeof ActivityRoute
   AnalyticsRoute: typeof AnalyticsRoute
   ApprovalsRoute: typeof ApprovalsRouteWithChildren
+  ArchiveRoute: typeof ArchiveRoute
   AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRoute
   FieldAnalysisRoute: typeof FieldAnalysisRoute
@@ -596,6 +609,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/archive': {
+      id: '/archive'
+      path: '/archive'
+      fullPath: '/archive'
+      preLoaderRoute: typeof ArchiveRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/approvals': {
@@ -825,6 +845,7 @@ const rootRouteChildren: RootRouteChildren = {
   ActivityRoute: ActivityRoute,
   AnalyticsRoute: AnalyticsRoute,
   ApprovalsRoute: ApprovalsRouteWithChildren,
+  ArchiveRoute: ArchiveRoute,
   AuthRoute: AuthRoute,
   DashboardRoute: DashboardRoute,
   FieldAnalysisRoute: FieldAnalysisRoute,
