@@ -299,6 +299,10 @@ function ProjectDetail() {
             </ol>
           </Card>
         </TabsContent>
+
+        <TabsContent value="archive" className="mt-4">
+          <ArchiveExplorer projectId={id} />
+        </TabsContent>
       </Tabs>
     </AppShell>
   );
